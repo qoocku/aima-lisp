@@ -31,8 +31,8 @@
     (cons (let ((list-var (gensym)))
 	    `(dolist (,list-var ,list)
 	       (destructuring-bind ,var ,list-var ,@body))))
-    (t (error "~V is an illegal variable in (for each ~V in ~A ...)"
-	      var list))))
+    (t (error "~a is an illegal variable in (for each ~s in ~a ...)"
+	      var var list))))
 
 (defmacro for (var = start to end do &body body)
   "Execute body with var bound to succesive integers."
