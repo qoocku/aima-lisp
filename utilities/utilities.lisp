@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- File: utilities.lisp
 
-;;;; Basic utility functions and macros, used throughout the code. 
+;;;; Basic utility functions and macros, used throughout the code.
 
 ;;; The utilities are divided into control flow macros, list
 ;;; utilities, functions for 2-dimensional points, numeric utilities,
@@ -144,11 +144,11 @@ Expressions are used in Logic, and as actions for agents."
       list
     (list* (first list) item (insert-between item (rest list)))))
 
-;;;; Functions for manipulating 2-dimensional points 
+;;;; Functions for manipulating 2-dimensional points
 
 (defstruct (xy (:type list)) "A two-dimensional (i.e. x and y) point." x y)
 
-(defun xy-p (arg) 
+(defun xy-p (arg)
   "Is the argument a 2-D point?"
   (and (consp arg) (= (length arg) 2) (every #'numberp arg)))
 
@@ -235,7 +235,7 @@ Expressions are used in Logic, and as actions for agents."
   (+ from (random (+ 1 (- to from)))))
 
 (defun normal (x mu sigma)
-  (/ (exp (/ (- (square (- x mu))) (* 2 (square sigma)))) 
+  (/ (exp (/ (- (square (- x mu))) (* 2 (square sigma))))
      (* (sqrt (* 2 pi)) sigma)))
 
 (defun sample-with-replacement (n population)
@@ -285,10 +285,10 @@ Expressions are used in Logic, and as actions for agents."
   (declare (ignore args))
   nil)
 
-#-(or MCL Lispworks) ;; MCL, Lispworks already define this function
+#-(or CCL MCL Lispworks) ;; MCL, Lispworks already define this function
 (defun true (&rest args) "Always return true." (declare (ignore args)) t)
 
-#-(or MCL Lispworks) ;; MCL, Lispworks already define this function
+#-(or CCL MCL Lispworks) ;; MCL, Lispworks already define this function
 (defun false (&rest args) "Always return false." (declare (ignore args)) nil)
 
 (defun required (&optional (msg "A required argument is missing.") &rest args)
@@ -325,7 +325,7 @@ Expressions are used in Logic, and as actions for agents."
 	   (for x = 0 to max-x do
 		(format stream "|")
 		(print-centered (funcall key (aref array x y)) width stream))
-	   (format stream "|~%") 
+	   (format stream "|~%")
 	   ;; Print a dashed line
 	   (print-repeated " " width stream)
 	   (for x = 0 to max-x do
@@ -391,7 +391,7 @@ Expressions are used in Logic, and as actions for agents."
   "Convert a hash table into a list of (key . val) pairs."
   (maphash #'cons table))
 
-(defun hprint (h &optional (stream t)) 
+(defun hprint (h &optional (stream t))
   "prints a hash table line by line"
   (maphash #'(lambda (key val) (format stream "~&~A:~10T ~A" key val)) h)
   h)
@@ -487,7 +487,7 @@ Expressions are used in Logic, and as actions for agents."
 	   (sum  (aima-system-parts system)
 		 #'(lambda (part) (test part print?))))
           (t (when print? (format t "Testing System ~A~%" name))
-	     (let ((errors (count-if-not #'(lambda (example) 
+	     (let ((errors (count-if-not #'(lambda (example)
 					     (test-example example print?))
 			   (aima-system-examples system))))
 	       (format *debug-io* "~%~2D error~P on system ~A~%"
@@ -521,4 +521,3 @@ Expressions are used in Logic, and as actions for agents."
           ((T) (format t "~&;;; FAILURE: expected ~S" test))
           (otherwise)))
       test-result)))
-  
