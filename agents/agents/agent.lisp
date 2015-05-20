@@ -1,9 +1,36 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
 
+(uiop:define-package :aima/agents
+	(:use :common-lisp :aima/utilities)
+  (:export #:ask-user-agent
+		   #:ask-user
+		   #:print-structure
+		   #:initialize-agent-names))
+
+;;; An agent is something that perceives and acts.  As such, each agent has a
+;;; slot to hold its current percept, and its current action.  The action
+;;; will be handed back to the environment simulator to perform (if legal).
+;;; Each agent also has a slot for the agent program, and one for its score
+;;; as determined by the performance measure.
+(defclass agent ()
+  ((program :initform #'nothing :reader agent-program)	; fn: percept -> action
+   (body    :initform (make-agent-body) :reader agent-body)
+   (score   :initform 0   :reader agent-score)
+   (percept :initform nil :reader agent-percept)
+   (action  :initform nil :reader agent-action)
+   (name    :initform nil :reader agent-name))
+
+  (:documentation "Agents take actions (based on percepts and the agent program) and receive
+  a score (based on the performance measure).  An agent has a body which can
+  take action, and a program to choose the actions, based on percepts."))
+
+
 ;;;; Definition of basic AGENT functions
 
-(defstructure (ask-user-agent (:include agent (program 'ask-user)))
-  "An agent that asks the user to type in an action.")
+(defclass ask-user-agent (agent)
+  ((program :initform 'ask-user))
+  (:documentation "An agent that asks the user to type in an action."))
+
 
 (defun ask-user (percept)
   "Ask the user what action to take."
@@ -48,4 +75,3 @@
 ;; exactly what we want in an agent program: a closure encapsulates local
 ;; state and behavior, and can access only its arguments and closed-over
 ;; variables.
-

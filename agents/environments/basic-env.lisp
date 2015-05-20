@@ -1,5 +1,7 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*-
 
+(in-package :aima/agents)
+
 ;;;; The basic environment simulator code
 
 ;;; This file defines the environment simulator function: RUN-ENVIRONMENT.  It
@@ -21,33 +23,16 @@
 ;;; (agent-trials 'vacuum-world
 ;;;   '(random-vacuum-agent reactive-vacuum-agent) :n 20)
 
-(defstructure environment
-  "The world in which agents exist."
-  (agents '())       ;; A list of the agents in the environment
-  (step 0)           ;; The number of time steps simulated so far
-  (max-steps 1000)   ;; Stop the simulation after this number
-  (stream t)         ;; Stream to display output on
-  (initialized nil)  ;; Have we run initialize on this environment yet?
-  (state nil)        ;; Current state of the environment; other subtypes
-                     ;; add new slots to hold various state information
-  )
 
-;;; An agent is something that perceives and acts.  As such, each agent has a
-;;; slot to hold its current percept, and its current action.  The action
-;;; will be handed back to the environment simulator to perform (if legal).
-;;; Each agent also has a slot for the agent program, and one for its score
-;;; as determined by the performance measure.
-
-(defstructure agent
-  "Agents take actions (based on percepts and the agent program) and receive
-  a score (based on the performance measure).  An agent has a body which can
-  take action, and a program to choose the actions, based on percepts."
-  (program #'nothing)			; fn: percept -> action
-  (body (make-agent-body))
-  (score 0)
-  (percept nil)
-  (action nil)
-  (name nil))
+(defclass environment ()
+  ((agents      :initform '()   :reader environment-agents)       ;; A list of the agents in the environment
+   (step        :initform 0     :reader environment-steps)        ;; The number of time steps simulated so far
+   (max-steps   :initform 1000  :reader environment-max-steps)    ;; Stop the simulation after this number
+   (stream      :initform t     :reader environment-stream)       ;; Stream to display output on
+   (initialized :initform nil   :reader environment-initialized)  ;; Have we run initialize on this environment yet?
+   (state       :initform nil   :reader environment-state)) ;; Current state of the environment; other subtypes
+                                ;; add new slots to hold various state information
+  (:documentation "The world in which agents exist."))
 
 ;;;; Top level functions
 
@@ -62,7 +47,7 @@
     ;; Deliver percept and get action from each agent
     (for each agent in (environment-agents env) do
 	 (setf (agent-percept agent) (get-percept env agent))
-	 (setf (agent-action agent) 
+	 (setf (agent-action agent)
 	       (funcall (agent-program agent) (agent-percept agent))))
     ;; Execute the actions and otherwise update the world
     (update-fn env)
@@ -129,11 +114,11 @@
   ;; You probably won't need to specialize this, unless you want to do
   ;; a fancy graphical user interface
   (let ((stream (environment-stream env)))
-    (when stream 
+    (when stream
       (format stream "~&At Time step ~D:~%" (environment-step env))
       (when (> (environment-step env) 0)
 	(for each agent in (environment-agents env) do
-	     (format stream 
+	     (format stream
 		     "~&Agent ~A perceives ~A~%~6Tand does ~A~%"
 		     agent (agent-percept agent)
 		     (agent-action agent))))
@@ -141,7 +126,7 @@
 
 (defmethod display-environment-snapshot ((env environment))
   "Display a 'picture' of the current state of the environment."
-  ;; This is what you will specialize 
+  ;; This is what you will specialize
   (print env (environment-stream env)))
 
 ;;;; Auxiliary Functions
@@ -161,7 +146,7 @@
   (let ((total 0) (score 0))
     (for i = 1 to n do
 	 (let* ((env (let ((*random-state* env-gen-random-state))
-		       (funcall environment-fn 
+		       (funcall environment-fn
 				:stream nil
 				:aspec (list agent-type)))))
 	   (run-environment env)
@@ -182,8 +167,3 @@
   (format stream "#<~A; Step: ~D, Agents:~{ ~A~}>"
 	  (type-of env) (environment-step env)
 	  (environment-agents env)))
-
-
-
-
-
