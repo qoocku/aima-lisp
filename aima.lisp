@@ -1,5 +1,11 @@
 ;;;  -*- Mode: Lisp; Syntax: Common-Lisp -*- File: aima.lisp
 
+(uiop:define-package :aima
+	(:recycle :aima)
+  (:use :common-lisp))
+
+(in-package :aima)
+
 ;;;; Vendor-Specific Customizations
 
 #+Lucid (setq *warn-if-no-in-package* nil)

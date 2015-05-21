@@ -2,6 +2,42 @@
 
 ;;;; Basic utility functions and macros, used throughout the code.
 
+(uiop:define-package :aima/utilities
+	(:recycle :aima :aima/utilities)
+  (:use :common-lisp :aima)
+  (:export #:while
+		   #:for
+		   #:deletef
+		   #:define-if-undefined
+		   #:length>1
+		   #:length=1
+		   #:random-element
+		   #:mappend
+		   #:starts-with
+		   #:last1
+		   #:left-rotate
+		   #:right-rotate
+		   #:transpose
+		   #:reuse-cons
+		   #:xy-p
+		   #:@
+		   #:xy-add
+		   #:xy-equal
+		   #:xy-distance
+		   #:xy-between
+		   #:rotate
+		   #:inside
+		   #:infinity
+		   #:minus-infinity
+		   #:average
+		   #:square
+		   #:sum
+		   #:between
+		   #:random-integer
+		   #:nothing))
+
+(in-package :aima/utilities)
+
 ;;; The utilities are divided into control flow macros, list
 ;;; utilities, functions for 2-dimensional points, numeric utilities,
 ;;; some trivial functions, utilities for strings, symbols and

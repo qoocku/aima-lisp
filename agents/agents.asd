@@ -17,7 +17,8 @@
 				:components ((:file "grid")))
 
 			   (:module "environments"
-				:components ((:file "basic-env")
+				:components ((:file "package")
+							 (:file "basic-env")
 							 (:file "grid-env")
 							 (:file "vacuum")
 							 (:file "wumpus")))

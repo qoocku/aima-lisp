@@ -2,6 +2,11 @@
 
 (in-package :aima/agents)
 
+(defstructure (wumpus-agent-body (:include agent-body
+    (contents (list (make-arrow)))))
+  "The default wumpus agent body is given an arrow.")
+
+
 ;;;; Agents for the wumpus world
 
 (defclass wumpus-agent (agent)

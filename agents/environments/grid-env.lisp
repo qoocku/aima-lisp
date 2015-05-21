@@ -1,5 +1,8 @@
 ;;; File: grid-env.lisp -*- Mode: Lisp; Syntax: Common-Lisp; -*-
 
+(in-package :aima/agents/environments)
+(use-package 'aima/utilities)
+
 ;;;; Environments with a two-dimensional grid layout occupied by objects
 
 ;;; This file defines a GRID-ENVIRONMENT, a kind of environment where there is
@@ -9,39 +12,34 @@
 ;;; key structure that is inherited by the Vacuum, Wumpus, Shopping and
 ;;; Elevator worlds.
 
-(defstructure (grid-environment (:include environment))
-  (size (@ 10 10))          ; Size of the 2-D array
-  (grid nil)		    ; Will be a 2-D array of squares
-  (objects '())             ; List of objects currently in this env.
-  (start (@ 1 1))	    ; Where agents begin
-  (aspec '(ask-user-agent)) ; Specify default list of Agents
-  (bspec '((at edge wall))) ; Specify Basic objects, common to all envs.
-  (cspec '())               ; Specify objects that Change for each env.
+(defclass grid-environment (environment)
+  ((size    :initform (@ 10 10))			  ; Size of the 2-D array
+   (grid    :initform nil)				  ; Will be a 2-D array of squares
+   (objects :initform '())			  ; List of objects currently in this env.
+   (start   :initform (@ 1 1))			  ; Where agents begin
+   (aspec   :initform '(ask-user-agent))  ; Specify default list of Agents
+   (bspec   :initform '((at edge wall))) ; Specify Basic objects, common to all envs.
+   (cspec   :initform '()))			   ; Specify objects that Change for each env.
   )
 
-(defstructure object
-  "An object is anything that occupies space.  Some objects are 'alive'."
-  (name "?")			; Used to print the object on the map
-  (alive? nil)                  ; Is the object alive?
-  (loc (@ 1 1))			; The square that the object is in
-  (bump nil)			; Has the object bumped into something?
-  (size 0.5)			; Size of object as proportion of loc
-  (color 'black)		; Some objects have a color
-  (shape 'rectangle)		; Some objects have a shape
-  (sound nil)			; Some objects create a sound
-  (contents '())		; Some objects contain others
-  (max-contents 0.4)            ; How much (total size) can fit inside?
-  (container nil)		; Some objects are contained by another
-  (heading (@ 1 0))		; Direction object is facing as unit vector
-  )
+(defclass object ()
+  ((name     :initform "?" :accessor object-name) ; Used to print the object on the map
+   (alive?   :initform nil)			   ; Is the object alive?
+   (loc      :initform (@ 1 1))		   ; The square that the object is in
+   (bump     :initform nil)			   ; Has the object bumped into something?
+   (size     :initform 0.5)			   ; Size of object as proportion of loc
+   (color    :initform 'black)		   ; Some objects have a color
+   (shape    :initform 'rectangle)	   ; Some objects have a shape
+   (sound    :initform nil)			   ; Some objects create a sound
+   (contents :initform '())		   ; Some objects contain others
+   (max-contents :initform 0.4)	   ; How much (total size) can fit inside?
+   (container    :initform nil)		   ; Some objects are contained by another
+   (heading      :initform (@ 1 0)))	   ; Direction object is facing as unit vector
+  (:documentation "An object is anything that occupies space.  Some objects are 'alive'."))
 
-(defstruct (obstacle (:include object (name "#"))))
+(defclass obstacle ((object (name :initform "#"))))
 
-(defstruct (wall (:include obstacle)))
-
-(defstruct (agent-body (:include object (alive? t) (name nil)))
-  "An agent body is an object; some bodies have a hand that can hold 1 thing."
-  (holding nil))
+(defclass wall (obstacle))
 
 ;;;; Generic Functions
 
@@ -60,14 +58,14 @@
   See PARSE-SPECS below in this file for more on initialization."
   (unless (environment-initialized env)
     ;; Build the grid and place objects where they belong
-    (setf (grid-environment-grid env) 
+    (setf (grid-environment-grid env)
 	  (make-array (grid-environment-size env) :initial-element '()))
     (parse-specs env (grid-environment-aspec env))
     (parse-specs env (grid-environment-bspec env))
     (parse-specs env (grid-environment-cspec env))
     (call-next-method)))
 
-(defmethod termination? ((env grid-environment)) 
+(defmethod termination? ((env grid-environment))
   "By default, we stop when there are no live agents."
   (every #'(lambda (agent) (not (object-alive? (agent-body agent))))
 	 (environment-agents env)))
@@ -86,7 +84,7 @@
 	(format stream "~A~A" name (heading->string (object-heading object)))
       (format stream "~A" name))))
 
-;;;; Actions 
+;;;; Actions
 
 (defmethod speak ((env grid-environment) agent-body sound)
   "The agent emits a sound."
@@ -105,8 +103,8 @@
 
 (defmethod forward ((env grid-environment) agent-body)
   "Move the object to the location that is one step directly ahead of it."
-  (move-object-to 
-   agent-body 
+  (move-object-to
+   agent-body
    (add-locs (object-loc agent-body) (object-heading agent-body))
    env))
 
@@ -114,7 +112,7 @@
   "Grab an object at the specified location.  Assumes a one-handed agent."
   (declare-ignore args) ;; They are used in other environments
   (let ((object (find-object-if #'grabable? (object-loc agent-body) env)))
-    (when (and object 
+    (when (and object
 	       (not (agent-body-holding agent-body))
 	       (place-in-container object agent-body env))
       (setf (agent-body-holding agent-body) object))))
@@ -132,23 +130,23 @@
 
 ;;;; Initializing Environments
 
-;;; The grammar for the object-specs language is as follows:             
+;;; The grammar for the object-specs language is as follows:
 ;;;<PRE>
 ;;;   specs  =>  (spec...)
 ;;;   spec   =>  (AT where what...) | (* n spec...) | what
 ;;;   where  =>  EDGE | ALL | FREE? | START | (x y) | (AND where...)
 ;;;   what   =>  object | type | (type arg...) | (* n what...)  | (P x what...)
 ;;;   n      =>  integer | (+- integer integer)
-;;; 
+;;;
 ;;; The location FREE? means a randomly chosen free loc, ALL means every loc.
 ;;; If no location is specified, the default is START for agents, FREE?
-;;; otherwise.  
-;;; 
+;;; otherwise.
+;;;
 ;;; Examples of spec:
-;;; 
+;;;
 ;;;  (at edge wall)                  1 wall in every perimeter location
 ;;;  (at free? wumpus)               1 wumpus in some random free location
-;;;  wumpus                          Same as above 
+;;;  wumpus                          Same as above
 ;;;  ask-user-agent                  1 ask-user-agent in the start cell
 ;;;  (* 2 apple)                     An apple in each of 2 random locations
 ;;;  (* 2 (apple :color green))      A green apple in each of 2 random locs
@@ -188,7 +186,7 @@
    ((eq where 'FREE?)   (parse-whats env (random-loc env :if 'free-loc?) whats))
    ((eq where 'START)   (parse-whats env (grid-environment-start env) whats))
    ((xy-p where)        (parse-whats env where whats))
-   ((eq (op where) 'AND)(for each w in (args where) do 
+   ((eq (op where) 'AND)(for each w in (args where) do
 			     (parse-where env w whats)))
    (t (warn "Unrecognized object spec ignored: ~A" `(at ,where ,@whats)))))
 
@@ -213,7 +211,7 @@
 				    (grid-environment-start env)
 				  (random-loc env :if #'free-loc?)))))
 	 (place-object object location env t)))))
-    
+
 (defun parse-n (n)
   (if (eq (op n) '+-)
       (round (+ (arg1 n) (random (float (arg2 n)))
@@ -237,4 +235,3 @@
   "A location is free if there is no obstacle there and it is not the start."
   (and (not (find-object-if #'obstacle-p loc env))
        (not (equal loc (grid-environment-start env)))))
-

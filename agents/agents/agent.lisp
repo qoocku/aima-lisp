@@ -1,11 +1,20 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
 
-(uiop:define-package :aima/agents
-	(:use :common-lisp :aima/utilities)
+(uiop:define-package :aima/agents/agents
+	(:recycle :aima/agents/environments :aima/utilities)
+  (:use :common-lisp :aima/utilities :aima/agents/environments)
   (:export #:ask-user-agent
 		   #:ask-user
 		   #:print-structure
 		   #:initialize-agent-names))
+
+(in-package :aima/agents/agents)
+
+(defclass agent-body (object)
+  ((alive? :initform t   :reader agent-body-alive?)
+   (name   :initform nil :reader agent-body-name)
+   (holding :initform nil :reader agent-body-holding))
+  (:documentation "An agent body is an object; some bodies have a hand that can hold 1 thing."))
 
 ;;; An agent is something that perceives and acts.  As such, each agent has a
 ;;; slot to hold its current percept, and its current action.  The action
@@ -13,12 +22,12 @@
 ;;; Each agent also has a slot for the agent program, and one for its score
 ;;; as determined by the performance measure.
 (defclass agent ()
-  ((program :initform #'nothing :reader agent-program)	; fn: percept -> action
-   (body    :initform (make-agent-body) :reader agent-body)
-   (score   :initform 0   :reader agent-score)
-   (percept :initform nil :reader agent-percept)
-   (action  :initform nil :reader agent-action)
-   (name    :initform nil :reader agent-name))
+  ((program :initform #'nothing :accessor agent-program)	; fn: percept -> action
+   (body    :initform (make-instance 'agent-body) :reader agent-body)
+   (score   :initform 0   :accessor agent-score)
+   (percept :initform nil :accessor agent-percept)
+   (action  :initform nil :accessor agent-action)
+   (name    :initform nil :accessor agent-name))
 
   (:documentation "Agents take actions (based on percepts and the agent program) and receive
   a score (based on the performance measure).  An agent has a body which can
@@ -44,13 +53,13 @@
 
 (defun initialize-agent-names (env)
   "Name the agents 1, 2, ... if they don't yet have a name."
-  (for each agent in (environment-agents env) do
-       (when (null (agent-name agent))
-	 (let ((i (+ 1 (position agent (environment-agents env))))
-	       (body (agent-body agent)))
-	   (setf (agent-name agent) i)
-	   (when (and body (null (object-name body)))
-	     (setf (object-name body) i))))))
+  (dolist (agnt (environment-agents env))
+	(when (null (agent-name agnt))
+	  (let ((i (+ 1 (position agnt (environment-agents env))))
+			(body (agent-body agnt)))
+		(setf (agent-name agnt) i)
+		(when (and body (null (object-name body)))
+		  (setf (object-name body) i))))))
 
 ;; Design Decision Notes
 

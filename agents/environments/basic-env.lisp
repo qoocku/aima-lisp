@@ -1,6 +1,9 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*-
 
-(in-package :aima/agents)
+(in-package :aima/agents/environments)
+(use-package :aima
+			 :aima/utilities
+			 :aima/agents/agents)
 
 ;;;; The basic environment simulator code
 
@@ -25,13 +28,13 @@
 
 
 (defclass environment ()
-  ((agents      :initform '()   :reader environment-agents)       ;; A list of the agents in the environment
-   (step        :initform 0     :reader environment-steps)        ;; The number of time steps simulated so far
+  ((agents      :initform '()   :accessor environment-agents)     ;; A list of the agents in the environment
+   (step        :initform 0     :accessor environment-step)       ;; The number of time steps simulated so far
    (max-steps   :initform 1000  :reader environment-max-steps)    ;; Stop the simulation after this number
    (stream      :initform t     :reader environment-stream)       ;; Stream to display output on
    (initialized :initform nil   :reader environment-initialized)  ;; Have we run initialize on this environment yet?
    (state       :initform nil   :reader environment-state)) ;; Current state of the environment; other subtypes
-                                ;; add new slots to hold various state information
+  ;; add new slots to hold various state information
   (:documentation "The world in which agents exist."))
 
 ;;;; Top level functions
@@ -79,7 +82,7 @@
 
 (defmethod get-percept ((env environment) agent)
   "Return the percept for this agent."
-  (declare-ignore env agent)
+  (declare (ignore env agent))
   nil)
 
 (defmethod update-fn ((env environment))

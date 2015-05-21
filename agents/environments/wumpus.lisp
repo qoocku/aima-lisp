@@ -1,5 +1,7 @@
 ;;; File: wumpus.lisp -*- Mode: Lisp; Syntax: Common-Lisp; -*-
 
+(in-package :aima/agents/environments)
+
 ;;;; The Wumpus World Environment
 
 (defstructure (wumpus-world (:include grid-environment
@@ -7,10 +9,6 @@
     (aspec '(aimless-wumpus-agent))
     (bspec '((at edge wall) (* 1 gold) (* 1 wumpus) (at all (p 0.2 pit))))))
   "A dangerous world with pits and wumpuses, and some gold.")
-
-(defstructure (wumpus-agent-body (:include agent-body
-    (contents (list (make-arrow)))))
-  "The default wumpus agent body is given an arrow.")
 
 (defstructure (gold   (:include object (name "$") (size 0.1))))
 (defstructure (pit    (:include object (name "O"))))
@@ -95,5 +93,3 @@
   (when (object-alive? object)
     (setf (object-alive? object) nil)
     (setf (object-sound object) 'scream)))
-
-
