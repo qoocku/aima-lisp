@@ -2,6 +2,8 @@
 
 ;;;; Algorithms for manipulating objects in a grid
 
+(in-package :aima/agents/algorithms)
+
 (defun grid-contents (env loc)
   "Return a list of objects in this location, optionally including
   objects that are contained within containers here."
@@ -38,17 +40,17 @@
 (defun place-in-container (object container env)
   "Put the object inside the container, if there is room."
   ;; First, check to see if there is space
-  (when (< (+ (object-size object) 
+  (when (< (+ (object-size object)
 	      (sum (object-contents container) #'object-size))
 	   (object-max-contents object))
     ;; If there is, remove it from where it was.
-    (remove-object object env) 
+    (remove-object object env)
     ;; Now place it in its new container
     (setf (object-container object) container)
     (setf (object-loc object) (object-loc container))
     (pushnew object (object-contents container))
     object))
-    
+
 (defun remove-object (object env)
   "Remove the object from its current location."
   (let ((loc (object-loc object))

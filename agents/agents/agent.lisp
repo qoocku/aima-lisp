@@ -1,13 +1,5 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
 
-(uiop:define-package :aima/agents/agents
-	(:recycle :aima/agents/environments :aima/utilities)
-  (:use :common-lisp :aima/utilities :aima/agents/environments)
-  (:export #:ask-user-agent
-		   #:ask-user
-		   #:print-structure
-		   #:initialize-agent-names))
-
 (in-package :aima/agents/agents)
 
 (defclass agent-body (object)
@@ -54,12 +46,12 @@
 (defun initialize-agent-names (env)
   "Name the agents 1, 2, ... if they don't yet have a name."
   (dolist (agnt (environment-agents env))
-	(when (null (agent-name agnt))
-	  (let ((i (+ 1 (position agnt (environment-agents env))))
-			(body (agent-body agnt)))
-		(setf (agent-name agnt) i)
-		(when (and body (null (object-name body)))
-		  (setf (object-name body) i))))))
+    (when (null (agent-name agnt))
+      (let ((i (+ 1 (position agnt (environment-agents env))))
+	    (body (agent-body agnt)))
+	(setf (agent-name agnt) i)
+	(when (and body (null (object-name body)))
+	  (setf (object-name body) i))))))
 
 ;; Design Decision Notes
 

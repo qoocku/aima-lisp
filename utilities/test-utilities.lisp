@@ -2,12 +2,14 @@
 
 ;;;; Test cases for the basic utilities
 
+(in-package :aima/utilities)
+
 (deftest utilities
   "Test all the utility functions."
 
   "Test the CLOS implementation"
-  ((defstructure shape))
-  ((defstructure (triangle (:include shape))
+  ((defstruct shape))
+  ((defstruct (triangle (:include shape))
      base height))
   ((defstructure (rectangle (:include shape))
      height width))
@@ -17,7 +19,7 @@
      (* (rectangle-height x) (rectangle-width x))))
   ((area (make-triangle :base 10 :height 10)) (equal * 50))
   ((area (make-rectangle :width 10 :height 10)) (equal * 100))
-  ((defmethod features ((x shape)) 
+  ((defmethod features ((x shape))
      '(shapely)))
   ((defmethod features ((x triangle))
      (cons (if (eql 0 (triangle-base x)) 'line 'triangle)

@@ -1,9 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*-
 
 (in-package :aima/agents/environments)
-(use-package :aima
-			 :aima/utilities
-			 :aima/agents/agents)
 
 ;;;; The basic environment simulator code
 

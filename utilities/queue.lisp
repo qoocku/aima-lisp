@@ -17,6 +17,8 @@
 ;;; and simple and O(log n), but not super efficient.  Consider a Fibonacci
 ;;; heap [Page 420 CL&R] if you really have large queues to deal with.
 
+(in-package :aima/utilities)
+
 (defstruct q
   (key #'identity)
   (last nil)
@@ -81,7 +83,7 @@
 (defun heap-right (i) (declare (fixnum i)) (the fixnum (+ 2 i i)))
 
 (defun heapify (heap i key)
-  "Assume that the children of i are heaps, but that heap[i] may be 
+  "Assume that the children of i are heaps, but that heap[i] may be
   larger than its children.  If it is, move heap[i] down where it belongs.
   [Page 143 CL&R]."
   (let ((l (heap-left i))

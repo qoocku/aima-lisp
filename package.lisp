@@ -1,7 +1,7 @@
 ;;;  -*- Mode: Lisp; Syntax: Common-Lisp -*- File: aima.lisp
 
 (uiop:define-package :aima
-	(:recycle :aima)
+    (:recycle :aima)
   (:use :common-lisp))
 
 (in-package :aima)
@@ -17,7 +17,7 @@
 
 ;;;; A minimal facility for defining systems of files
 
-(defparameter *aima-root* (truename "~/src/aima-lisp") ; <<<<<<<< Edit this <<<<<<
+(defparameter *aima-root* (truename ".") ; <<<<<<<< Edit this <<<<<<
   "The root directory where the code is stored.")
 
 (defparameter *aima-binary-type*
@@ -38,8 +38,12 @@
 (defparameter *aima-system-names* nil
   "A list of names of the systems that have been defined.")
 
-(defstruct aima-system
-  name (requires nil) (doc "") (parts nil) (examples nil) (loaded? nil))
+(defstruct aima-system name
+	   (requires nil)
+	   (doc "")
+	   (parts nil)
+	   (examples nil)
+	   (loaded? nil))
 
 ;;;; The Top-Level Functions:
 
@@ -155,6 +159,7 @@
 ;;;; Definitions of Systems
 ;;; ----------------------------------------------------------------------
 
+#|
 (def-aima-system utilities ()
   "Basic functions that are loaded every time, and used by many other systems."
   ("utilities" / "utilities" "binary-tree" "queue" "cltl2" "test-utilities"))
@@ -230,3 +235,4 @@
    "Lisp reader is case-sensitive.  Some AIMA code may not work correctly."))
 
 (aima-load 'utilities)
+|#

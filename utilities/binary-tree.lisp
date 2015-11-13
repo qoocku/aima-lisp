@@ -5,6 +5,7 @@
 ;;;  They are not balanced as yet.  Currently, they all order their
 ;;;  elements by #'<, and test for identity of elements by #'eq.
 
+(in-package :aima/utilities)
 
 (defstruct search-tree-node
   "node for binary search tree"
@@ -17,7 +18,7 @@
   )
 
 
- 
+
 (defun make-search-tree (root-elem root-key &aux root)
   "return dummy header for binary search tree, with initial
   element root-elem whose key is root-key."
@@ -78,7 +79,7 @@
 	    (setq tree-node next))))
 
 
- 
+
 (defun pop-least-element (header)
   "return least element of binary search tree; delete from tree as side-effect"
   ;; Note value slots of search-tree-nodes are lists of a-star-nodes, all of
@@ -115,9 +116,9 @@
   ;; is the last element in the root node of the search-tree.  In this case, it
   ;; will be in the leftson of the dummy header.  In all other cases,
   ;; it will be in the rightson of its parent.
-  (let* ( (place (rightmost header)) 
+  (let* ( (place (rightmost header))
 	 (result (pop (search-tree-node-value place))) )
-      (decf (search-tree-node-num-elements place))      
+      (decf (search-tree-node-num-elements place))
       (when (null (search-tree-node-value place))
 	(cond ( (eq place (search-tree-node-leftson header))
 	       (setf (search-tree-node-leftson header)
@@ -197,7 +198,7 @@
 	      ( (= key (search-tree-node-key place))
 	       (setf (search-tree-node-value place)
 		     (randomized-push element (search-tree-node-value place)))
-	       (incf (search-tree-node-num-elements place))	       
+	       (incf (search-tree-node-num-elements place))
 	       (return t))
 	      ( (< key (search-tree-node-key place))
 	       (setq parent place)
@@ -227,7 +228,7 @@
 		  (return nil) )
 		 ( (= key (search-tree-node-key place))
 		  (return (find element (search-tree-node-value place)
-				:test #'eq)) ) 
+				:test #'eq)) )
 		 ( (< key (search-tree-node-key place))
 		  (setq parent place)
 		  (setq direction #'search-tree-node-leftson) )
@@ -251,13 +252,13 @@
   ;; returns t if element found, nil otherwise.
   (loop (setq place (funcall direction parent))
 	(cond ( (null place) (if error-p
-				 (error "delete-element: element not found") 
+				 (error "delete-element: element not found")
 				 (return nil)) )
 	      ( (= key (search-tree-node-key place))
 	       (cond ( (find element (search-tree-node-value place) :test #'eq)
 		      ;; In this case we've found the right binary
 		      ;; search-tree node, so we should delete the
-		      ;; element from the list of nodes 
+		      ;; element from the list of nodes
 		      (setf (search-tree-node-value place)
 			    (remove element (search-tree-node-value place)
 				    :test #'eq))
@@ -304,7 +305,7 @@
 				       next)
 				 (if (eq direction #'search-tree-node-leftson)
 				     (setf (search-tree-node-leftson
-					    parent) next) 
+					    parent) next)
 				     (setf (search-tree-node-rightson parent)
 					   next))
 				 (unless (eq next (search-tree-node-rightson
@@ -326,7 +327,7 @@
 				       (search-tree-node-parent place))))))
 		      (return t))
 		     (t (if error-p
-			    (error "delete-element:  element not found") 
+			    (error "delete-element:  element not found")
 			    (return nil)))) )
 	      ( (< key (search-tree-node-key place))
 	       (setq parent place)

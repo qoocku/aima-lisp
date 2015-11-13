@@ -11,6 +11,8 @@
 ;;; one) will be printed in the overview, and comments with 4
 ;;; semicolons will be printed as a section header.
 
+(in-package :aima/utilities)
+
 (defmacro do-file ((var file &key (by '#'read)) &body body)
   "Execute body with VAR bound to succesive expressions from FILE."
   `(block nil (map-file #'(lambda (,var) ,@body) ,file :read ,by)))
@@ -29,7 +31,7 @@
 (defvar *cl-symbols* (make-hash-table :test #'eq)
   "Table with a count of uses of each built-in Common Lisp symbol.")
 
-(defvar *counts* '(total 0) 
+(defvar *counts* '(total 0)
   "Count of definitions, files, etc.")
 
 (defvar *aima-system* nil "Keep track of current system.")
@@ -57,7 +59,7 @@
   ;; Loop through systems, recording entries and writing output
   (dolist (name system-names)
       (unless (member name '(all everything))
-  (with-open-file (stream (aima-file 
+  (with-open-file (stream (aima-file
                            (format nil "overview-~A" name)
                            :type "html" :path '("doc"))
                           :direction :output :if-exists :supersede)
@@ -104,19 +106,19 @@
 
 (defun alphabetize (table if)
   "Alphabetize a table of entries."
-  (sort (hashtable-vals table if) #'string-lessp 
+  (sort (hashtable-vals table if) #'string-lessp
 	:key #'(lambda (x) (stringify (entry-name x)))))
 
 (defun mapcarhash (fn table)
   "Do a maphash, and keep the results."
   (let ((result nil))
-    (maphash #'(lambda (key val) (push (funcall fn key val) result)) 
+    (maphash #'(lambda (key val) (push (funcall fn key val) result))
 	     table)
     result))
 
 (defun hashtable-vals (table if)
   (let ((result nil))
-    (maphash #'(lambda (key val) (declare (ignore key)) 
+    (maphash #'(lambda (key val) (declare (ignore key))
 		 (when (funcall if val) (push val result)))
 	     table)
     result))
@@ -124,12 +126,12 @@
 (defun gen-entries (entries.html)
   "Sort *user-symbols* and *cl-symbols* and print entries.html files.
   These are alphabetized, with A-Z 'tabs', and printed in two columns."
-  (let* ((entries (alphabetize *user-symbols* 
-			       #'(lambda (x) 
+  (let* ((entries (alphabetize *user-symbols*
+			       #'(lambda (x)
 				   (or (entry-defs x) (entry-page x)))))
 	 (symbols (alphabetize *cl-symbols* #'true))
 	 (width (reduce #'max (mapcar #'entry-width entries))))
-    (with-open-file (stream entries.html :direction :output 
+    (with-open-file (stream entries.html :direction :output
 			    :if-exists :supersede)
       (format stream "<HTML><TITLE>Index of AIMA Code</TITLE>
  <BODY bgcolor=\"#ffffff\">
@@ -144,15 +146,15 @@
       (format stream "  They are listed below in the left column, with links
   to the overview of each definition (documentation string, and parameter
   list for functions).  From the overview you can link to the source code.
-  The letters F, M, V, and T in the links stand for function, macro, variable 
+  The letters F, M, V, and T in the links stand for function, macro, variable
   and type, respectively; also given is the page number in the book where some
   of these definitions occur.  <P> In the right
   column are the ~D built-in Common Lisp symbols used in the code (along with
   the number of times each is used).  You can
-  follow a link to the definition of each one in the 
+  follow a link to the definition of each one in the
   <A HREF=\"http://www.harlequin.com/books/HyperSpec/FrontMatter/index.html\">
   Common Lisp Hyperspec</A> (based on the ANSI standard document).
-  You can also go directly to the <A HREF=\"overview.html\">overview</A> 
+  You can also go directly to the <A HREF=\"overview.html\">overview</A>
   or the <A HREF=\"../\">code directory</A>.
   <P><CENTER>
   <A HREF=\"#*\"> *</A>
@@ -164,7 +166,7 @@
   <A HREF=\"#P\"> P</A> <A HREF=\"#Q\"> Q</A> <A HREF=\"#R\"> R</A>
   <A HREF=\"#S\"> S</A> <A HREF=\"#T\"> T</A> <A HREF=\"#U\"> U</A>
   <A HREF=\"#V\"> V</A> <A HREF=\"#W\"> W</A> <A HREF=\"#X\"> X</A>
-  <A HREF=\"#Y\"> Y</A> <A HREF=\"#Z\"> Z</A> </CENTER>~%<PRE>~%" 
+  <A HREF=\"#Y\"> Y</A> <A HREF=\"#Z\"> Z</A> </CENTER>~%<PRE>~%"
 	      (length symbols))
       (format stream "AIMA Symbols~VTCommon Lisp Symbols~%" width)
       (format stream "============~VT===================~%" width)
@@ -172,16 +174,16 @@
       ;;   Print tab
       ;;   Loop: print all entries with that tab
       (loop (when (and (null entries) (null symbols)) (RETURN))
-	(let ((ch (char-upcase 
+	(let ((ch (char-upcase
 		   (char (entry-name (or (first entries) (first symbols))) 0)))
 	      c1 c2)
 	  (format stream "~&~VT<B><A NAME=~C>~C</A></B>~%" (- width 4) ch ch)
-	  (loop 
-	    (if (setq c1 (and entries 
+	  (loop
+	    (if (setq c1 (and entries
 			      (char-ok? (entry-name (first entries)) ch)))
 		(format-entry-link stream (pop entries) width)
 	      (format stream "~&~VT" width))
-	    (if (setq c2 (and symbols 
+	    (if (setq c2 (and symbols
 			      (char-ok? (entry-name (first symbols)) ch)))
 		(format-symbol-link stream (pop symbols))
 	      (format stream "~%"))
@@ -197,18 +199,18 @@
 (defun format-entry-link (stream entry width)
   "Print the entry and tab over to width.
   It looks like: NAME (34) [p. xxx] F F F"
-  (format stream "~&~A (~D)~@[ [p. ~D]~]" 
+  (format stream "~&~A (~D)~@[ [p. ~D]~]"
 	  (entry-name entry) (entry-count entry) (entry-page entry))
   (dolist (def (entry-defs entry))
-    (format stream " <A HREF=\"overview-~A.html#~A\">~A</A>" 
+    (format stream " <A HREF=\"overview-~A.html#~A\">~A</A>"
 	    (def-system def)
-	    (overview-tag-name 
+	    (overview-tag-name
 	     (def-kind def) (entry-name entry) (def-arg-type def))
 	    (def-kind def)))
   (print-repeated " " (- width (entry-width entry)) stream))
 
 (defun format-symbol-link (stream entry)
-  (format stream "~A (~D) ~%" 
+  (format stream "~A (~D) ~%"
 	  (hyperspec-link (intern (string-upcase (entry-name entry))))
 	  (entry-count entry)))
 
@@ -230,7 +232,7 @@
 
 (defvar *comment-readtable* (copy-readtable))
 
-(defstructure semi-comment 
+(defstruct semi-comment
   "The text (string) and number of leading semicolons (level) in a comment."
   level string)
 
@@ -258,7 +260,7 @@
   "List all the definitions in this file."
   ;; The stream is a file in code/doc, so the links have a .. in them.
   (setf file (file-with-type file "lisp"))
-  (format stream "<A NAME=\"~A\"><HR>~%<H2>File <A HREF=\"../~A\">~A</A></H2></A>~%"  
+  (format stream "<A NAME=\"~A\"><HR>~%<H2>File <A HREF=\"../~A\">~A</A></H2></A>~%"
 	  (aima-namestring file) (aima-namestring file) (aima-namestring file))
   (let ((*readtable* *comment-readtable*))
     (do-file (exp file)
@@ -281,7 +283,7 @@
 	   (args "")
 	   (kind
 	    (case (first exp)
-	      ((DEFUN DEFGENERIC) 
+	      ((DEFUN DEFGENERIC)
 	       (setq args (or (remove-&aux (mapcar #'first-atom (third exp)))
 			      "()"))
 	       "function")
@@ -294,17 +296,17 @@
 	       (setq args (mapcar #'first-atom
 				  (remove-if #'stringp (nthcdr 2 exp))))
 	       "type")
-	      ((PROGN DEFINE-IF-UNDEFINED WHEN UNLESS)         
+	      ((PROGN DEFINE-IF-UNDEFINED WHEN UNLESS)
 	       (dolist (x (rest exp))
 		 (overview-exp x stream file))
 	       nil))))
       (when kind
-	(format stream 
+	(format stream
 		"<A NAME=~S><P><A HREF=\"../~A\"><B>~(~A~)</B></A></A> <I>~A</I> ~(~A~)
   ~@[<blockquote>~A</blockquote>~]~A~%"
 		(overview-tag-name kind name (defmethod-arg-type exp))
 		(aima-namestring file)
-		name kind (remove-&aux args) doc 
+		name kind (remove-&aux args) doc
 		(if (null doc) "<P>" "") ;???
 		))))))
 
@@ -313,22 +315,22 @@
   (format nil "~(~A~@[:~A~]~)" name arg-type))
 
 (defun defmethod-arg-type (exp)
-  (when (starts-with exp 'defmethod) 
+  (when (starts-with exp 'defmethod)
     (let ((arg1 (first (third exp))))
       (if (consp arg1) (second arg1) 't))))
 
 (defun remove-&aux (list)
-  (if (consp list) 
+  (if (consp list)
       (ldiff list (member '&aux list))
     list))
-    
+
 (defun record-exp (exp file)
   (when (consp exp)
     (let ((name (op (second exp))))
       (record-symbols-counts exp name)
       (case (first exp)
 	((DEFUN DEFGENERIC)             (record-entry name file 'f))
-	((DEFMETHOD)                    (record-entry 
+	((DEFMETHOD)                    (record-entry
 					 name file 'f
 					 (defmethod-arg-type exp)))
 	((DEFMACRO)                     (record-entry name file 'm))
@@ -354,7 +356,7 @@
 	    (entry-defs entry)))))
 
 (defun first-atom (x) (if (atom x) x (first-atom (first x))))
-    
+
 (defun aima-namestring (file)
   (enough-namestring (truename file) (truename *aima-root*)))
 
@@ -374,11 +376,11 @@
 	  (if (cdr exp) (record-symbols-counts (cdr exp) name)))
     (SYMBOL (cond ((eq exp name) nil)
 		  ((eq (symbol-package exp)
-		      #.(or (find-package "COMMON-LISP") 
+		      #.(or (find-package "COMMON-LISP")
 			    (find-package "LISP")))
 		   (incf (entry-count (get-entry exp *cl-symbols*))))
 		  ((eq (symbol-package exp)
-		      #.(or (find-package "COMMON-LISP-USER") 
+		      #.(or (find-package "COMMON-LISP-USER")
 			    (find-package "USER")))
 		   (incf (entry-count (get-entry exp *user-symbols*))))))))
 
@@ -398,7 +400,7 @@
   (run-environment                  49)
   (run-eval-environment             49)
   (simple-problem-solving-agent     57)
-  (problem                          60 t) 
+  (problem                          60 t)
   (node                             72 t)
   (general-search                   73)
   (breadth-first-search             74)

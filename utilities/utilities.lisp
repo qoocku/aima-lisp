@@ -3,38 +3,38 @@
 ;;;; Basic utility functions and macros, used throughout the code.
 
 (uiop:define-package :aima/utilities
-	(:recycle :aima :aima/utilities)
+    (:recycle :aima :aima/utilities)
   (:use :common-lisp :aima)
   (:export #:while
-		   #:for
-		   #:deletef
-		   #:define-if-undefined
-		   #:length>1
-		   #:length=1
-		   #:random-element
-		   #:mappend
-		   #:starts-with
-		   #:last1
-		   #:left-rotate
-		   #:right-rotate
-		   #:transpose
-		   #:reuse-cons
-		   #:xy-p
-		   #:@
-		   #:xy-add
-		   #:xy-equal
-		   #:xy-distance
-		   #:xy-between
-		   #:rotate
-		   #:inside
-		   #:infinity
-		   #:minus-infinity
-		   #:average
-		   #:square
-		   #:sum
-		   #:between
-		   #:random-integer
-		   #:nothing))
+	   #:for
+	   #:deletef
+	   #:define-if-undefined
+	   #:length>1
+	   #:length=1
+	   #:random-element
+	   #:mappend
+	   #:starts-with
+	   #:last1
+	   #:left-rotate
+	   #:right-rotate
+	   #:transpose
+	   #:reuse-cons
+	   #:xy-p
+	   #:@
+	   #:xy-add
+	   #:xy-equal
+	   #:xy-distance
+	   #:xy-between
+	   #:rotate
+	   #:inside
+	   #:infinity
+	   #:minus-infinity
+	   #:average
+	   #:square
+	   #:sum
+	   #:between
+	   #:random-integer
+	   #:nothing))
 
 (in-package :aima/utilities)
 
@@ -86,10 +86,10 @@
       (get-setf-expansion sequence env)
     (assert (= (length stores) 1))
     (let ((item-var (gensym "ITEM")))
-    `(let* ((,item-var ,item)
-	    ,@(mapcar #'list temps vals)
-	    (,(first stores) (delete ,item-var ,access-form ,@keys)))
-      ,store-form))))
+      `(let* ((,item-var ,item)
+	      ,@(mapcar #'list temps vals)
+	      (,(first stores) (delete ,item-var ,access-form ,@keys)))
+	 ,store-form))))
 
 (defmacro define-if-undefined (&rest definitions)
   "Use this to conditionally define functions, variables, or macros that
@@ -105,9 +105,9 @@
 				     ;; special-operator-p in ANS.
 				     (if (fboundp 'special-operator-p)
 					 (funcall 'special-operator-p ',name)
-				       (funcall 'special-form-p ',name))
+					 (funcall 'special-form-p ',name))
 				     (macro-function ',name)))
-		       ,def)))
+			,def)))
 	       definitions)))
 
 ;;;; List Utilities
@@ -178,7 +178,7 @@ Expressions are used in Logic, and as actions for agents."
   "Insert item between every element of list."
   (if (or (null list) (length=1 list))
       list
-    (list* (first list) item (insert-between item (rest list)))))
+      (list* (first list) item (insert-between item (rest list)))))
 
 ;;;; Functions for manipulating 2-dimensional points
 
@@ -280,7 +280,7 @@ Expressions are used in Logic, and as actions for agents."
     result))
 
 (defun sample-without-replacement (n population &optional
-				     (m (length population)))
+						(m (length population)))
   ;; Assumes that m = (length population)
   (cond ((<= n 0) nil)
 	((>= n m) population)
@@ -401,10 +401,10 @@ Expressions are used in Logic, and as actions for agents."
 
 (defun copy-subarray (a b indices dim)
   (if dim
-    (dotimes (i (first dim))
-      (copy-subarray a b (append indices (list i)) (rest dim)))
-    (setf (apply #'aref (cons b indices))
-          (apply #'aref (cons a indices)))))
+      (dotimes (i (first dim))
+	(copy-subarray a b (append indices (list i)) (rest dim)))
+      (setf (apply #'aref (cons b indices))
+	    (apply #'aref (cons a indices)))))
 
 (defun array->vector (array)
   "Convert a multi-dimensional array to a vector with the same elements."
@@ -413,7 +413,7 @@ Expressions are used in Logic, and as actions for agents."
 
 (defun plot-alist (alist file)
   (with-open-file (stream file :direction :output :if-does-not-exist :create
-                     :if-exists :supersede)
+			       :if-exists :supersede)
     (dolist (xy alist)
       (format stream "~&~A ~A~%" (car xy) (cdr xy)))))
 
@@ -515,7 +515,7 @@ Expressions are used in Logic, and as actions for agents."
   other systems as parts, run the tests for all those and sum the result."
   (let ((*print-pretty* t)
 	(*standard-output* (if print? *standard-output*
-			     (make-broadcast-stream)))
+			       (make-broadcast-stream)))
 	(system (aima-load-if-unloaded name)))
     (cond ((null system) (warn "No such system as ~A." name))
 	  ((and (null (aima-system-examples system))
@@ -525,7 +525,7 @@ Expressions are used in Logic, and as actions for agents."
           (t (when print? (format t "Testing System ~A~%" name))
 	     (let ((errors (count-if-not #'(lambda (example)
 					     (test-example example print?))
-			   (aima-system-examples system))))
+					 (aima-system-examples system))))
 	       (format *debug-io* "~%~2D error~P on system ~A~%"
 		       errors errors name)
 	       errors)))))
@@ -537,23 +537,23 @@ Expressions are used in Logic, and as actions for agents."
         (when (eq print? t)
           (format t "~&;;; ~A~%" example))
         t)
-    (let* ((exp (first example))
-	   (* nil)
-	   (test (cond ((null (second example)) t)
-		       ((constantp (second example))
-			`(equal * ,(second example)))
-		       (t (second example))))
-           test-result)
-      (when (eq print? t)
-        (format t "~&> ~S~%" exp))
-      (setf * (eval exp))
-      (when (eq print? t)
-        (format t "~&~S~%" *))
-      (setf test-result (eval test))
-      (when (null test-result)
-        (case print?
-          ((FAIL) (format t "~&;;; FAILURE on ~S; expected ~S, got:~%;;; ~S~%"
-                          exp test *))
-          ((T) (format t "~&;;; FAILURE: expected ~S" test))
-          (otherwise)))
-      test-result)))
+      (let* ((exp (first example))
+	     (* nil)
+	     (test (cond ((null (second example)) t)
+			 ((constantp (second example))
+			  `(equal * ,(second example)))
+			 (t (second example))))
+	     test-result)
+	(when (eq print? t)
+	  (format t "~&> ~S~%" exp))
+	(setf * (eval exp))
+	(when (eq print? t)
+	  (format t "~&~S~%" *))
+	(setf test-result (eval test))
+	(when (null test-result)
+	  (case print?
+	    ((FAIL) (format t "~&;;; FAILURE on ~S; expected ~S, got:~%;;; ~S~%"
+			    exp test *))
+	    ((T) (format t "~&;;; FAILURE: expected ~S" test))
+	    (otherwise)))
+	test-result)))
