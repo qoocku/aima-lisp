@@ -3,7 +3,6 @@
 ;;;; Basic utility functions and macros, used throughout the code.
 
 (uiop:define-package :aima/utilities
-    (:recycle :aima :aima/utilities)
   (:use :common-lisp :aima)
   (:export #:while
 	   #:for
@@ -37,6 +36,7 @@
 	   #:nothing))
 
 (in-package :aima/utilities)
+(use-package :aima)
 
 ;;; The utilities are divided into control flow macros, list
 ;;; utilities, functions for 2-dimensional points, numeric utilities,

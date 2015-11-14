@@ -7,6 +7,7 @@
   :version "0.0.1"
   :author "Damian T. Dobroczy\\'nski <qoocku@gmail.com>"
   :licence "Public Domain"
+  :documentation "Code from Part I: Agents and Environments"
   ;; --------------------- packages files -----------------------
   :serial t
   :components ((:module "algorithms"

@@ -2,7 +2,12 @@
 
 (uiop:define-package :aima
     (:recycle :aima)
-  (:use :common-lisp))
+  (:use :common-lisp)
+  (:export #:*aima-version*
+	   #:*aima-binary-type*
+	   #:*aima-system-names*
+	   #:def-aima-system
+	   #:add-aima-system))
 
 (in-package :aima)
 
@@ -159,7 +164,6 @@
 ;;;; Definitions of Systems
 ;;; ----------------------------------------------------------------------
 
-#|
 (def-aima-system utilities ()
   "Basic functions that are loaded every time, and used by many other systems."
   ("utilities" / "utilities" "binary-tree" "queue" "cltl2" "test-utilities"))
@@ -170,7 +174,7 @@
    ("environments" / "basic-env" "grid-env" "vacuum" "wumpus")
    ("agents" / "agent" "vacuum" "wumpus")
    ("algorithms" / "grid")))
-
+#|
 (def-aima-system search (agents)
   "Code from Part II: Problem Solving and Search"
   ("search" / "test-search"
