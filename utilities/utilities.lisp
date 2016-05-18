@@ -2,40 +2,40 @@
 
 ;;;; Basic utility functions and macros, used throughout the code.
 
-(uiop:define-package :aima/utilities
-  (:use :common-lisp :aima)
+(uiop:define-package #:aima/utilities
+    (:use #:common-lisp #:aima)
   (:export #:while
-	   #:for
-	   #:deletef
-	   #:define-if-undefined
-	   #:length>1
-	   #:length=1
-	   #:random-element
-	   #:mappend
-	   #:starts-with
-	   #:last1
-	   #:left-rotate
-	   #:right-rotate
-	   #:transpose
-	   #:reuse-cons
-	   #:xy-p
-	   #:@
-	   #:xy-add
-	   #:xy-equal
-	   #:xy-distance
-	   #:xy-between
-	   #:rotate
-	   #:inside
-	   #:infinity
-	   #:minus-infinity
-	   #:average
-	   #:square
-	   #:sum
-	   #:between
-	   #:random-integer
-	   #:nothing))
+           #:for
+           #:deletef
+           #:define-if-undefined
+           #:length>1
+           #:length=1
+           #:random-element
+           #:mappend
+           #:starts-with
+           #:last1
+           #:left-rotate
+           #:right-rotate
+           #:transpose
+           #:reuse-cons
+           #:xy-p
+           #:@
+           #:xy-add
+           #:xy-equal
+           #:xy-distance
+           #:xy-between
+           #:rotate
+           #:inside
+           #:infinity
+           #:minus-infinity
+           #:average
+           #:square
+           #:sum
+           #:between
+           #:random-integer
+           #:nothing))
 
-(in-package :aima/utilities)
+(in-package #:aima/utilities)
 (use-package :aima)
 
 ;;; The utilities are divided into control flow macros, list
@@ -321,10 +321,10 @@ Expressions are used in Logic, and as actions for agents."
   (declare (ignore args))
   nil)
 
-#-(or CCL MCL Lispworks) ;; MCL, Lispworks already define this function
+#-(or ECL CCL MCL Lispworks) ;; MCL, Lispworks already define this function
 (defun true (&rest args) "Always return true." (declare (ignore args)) t)
 
-#-(or CCL MCL Lispworks) ;; MCL, Lispworks already define this function
+#-(or ECL CCL MCL Lispworks) ;; MCL, Lispworks already define this function
 (defun false (&rest args) "Always return false." (declare (ignore args)) nil)
 
 (defun required (&optional (msg "A required argument is missing.") &rest args)
