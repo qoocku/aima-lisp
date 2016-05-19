@@ -1,4 +1,4 @@
-;;; File: binary-tree.lisp -*- Mode: Lisp; Syntax: Common-Lisp -*-
+;;; File: binary-tree.lisp -*- Mode: Lisp -*-
 
 ;;;;  The following definitions implement binary search trees.
 
@@ -14,26 +14,24 @@
   key          ;; f-cost of the a-star-nodes
   parent       ;; parent of search-tree-node
   leftson      ;; direction of search-tree-nodes with lesser f-cost
-  rightson     ;; direction of search-tree-nodes with greater f-cost
-  )
-
+  rightson)     ;; direction of search-tree-nodes with greater f-cost
 
 
 (defun make-search-tree (root-elem root-key &aux root)
   "return dummy header for binary search tree, with initial
   element root-elem whose key is root-key."
   (setq root
-	(make-search-tree-node
-	  :value nil
-	  :parent nil
-	  :rightson nil
-	  :leftson (make-search-tree-node
-		     :value (list root-elem)
-		     :num-elements 1
-		     :key root-key
-		     :leftson nil :rightson nil)))
+        (make-search-tree-node
+         :value nil
+         :parent nil
+         :rightson nil
+         :leftson (make-search-tree-node
+                   :value (list root-elem)
+                   :num-elements 1
+                   :key root-key
+                   :leftson nil :rightson nil)))
   (setf (search-tree-node-parent
-	  (search-tree-node-leftson root)) root)
+         (search-tree-node-leftson root)) root)
   root)
 
 

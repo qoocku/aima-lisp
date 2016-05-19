@@ -1,14 +1,23 @@
 ;;;  -*- Mode: Lisp; -*-
 
-(uiop:define-package :aima (:recycle :aima)
-  (:use :common-lisp)
+(uiop:define-package #:aima (:recycle #:aima)
+  (:use #:common-lisp #:alexandria)
   (:export #:*aima-version*
+           #:*aima-root*
            #:*aima-binary-type*
            #:*aima-system-names*
            #:def-aima-system
-           #:add-aima-system))
+           #:add-aima-system
+           #:aima-load-if-unloaded
+           #:get-aima-system
+           #:aima-system-examples
+           #:aima-system-parts
+           #:aima-file
+           #:operate-on-aima-system
+           #:file-with-type
+           #:mklist))
 
-(in-package :aima)
+(in-package #:aima)
 
 ;;;; Vendor-Specific Customizations
 
@@ -19,7 +28,7 @@
 ;; Graphics
 #+Allegro (shadow 'print-structure)
 
-#|
+
 ;;;; A minimal facility for defining systems of files
 
 (defparameter *aima-root* (truename ".") ; <<<<<<<< Edit this <<<<<<
@@ -32,13 +41,14 @@
           #+Allegro excl:*fasl-default-type*
           #+(or AKCL KCL ECL) "o"
           #+CMU "sparcf"
-          #+CLISP "fas"))
+          #+CLISP "fas"
+          #+(or SBCL CCL) "fasl"
+          #+ABCL "abcl"))
   "If calling aima-load loads your source files and not your compiled
   binary files, insert the file type for your binaries before the <<<<
   and load systems with (aima-load-binary NAME).")
 
-(defconstant *aima-version*
-  "0.99 AIMA Code, Appomattox Version, 09-Apr-2002")
+(define-constant +aima-version+ "0.99 AIMA Code, Appomattox Version, 09-Apr-2002" :test #'string=)
 
 (defparameter *aima-system-names* nil
   "A list of names of the systems that have been defined.")
@@ -74,11 +84,16 @@
   "Compile (and load) the file or files that make up an AIMA system."
   (operate-on-aima-system name 'compile-load))
 
+#-asdf
 (defun aima-load-if-unloaded (name)
   (let ((system (get-aima-system name)))
     (unless (and system (aima-system-loaded? system))
       (aima-load system))
     system))
+#+asdf
+(defun aima-load-if-unloaded (name)
+  (and (asdf:load-system (format nil "aima-~(~A~)" (symbol-name name)))
+       (get-aima-system name)))
 
 ;;;; Support Functions
 
@@ -239,5 +254,7 @@
    "Continue loading AIMA code."
    "Lisp reader is case-sensitive.  Some AIMA code may not work correctly."))
 
-(aima-load 'utilities)
-|#
+;;; push :CLOS into features list
+#+(or sbcl ccl clisp abcl ecl allegro lispworks) (push :clos *features*)
+
+#+nil (aima-load 'utilities)

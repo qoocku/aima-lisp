@@ -1,10 +1,10 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
+;;; -*- Mode: Lisp; -*- Author: Peter Norvig
 
-(in-package :aima/agents/agents)
+(in-package #:aima/agents/agents)
 
 (defclass agent-body (object)
-  ((alive? :initform t   :reader agent-body-alive?)
-   (name   :initform nil :reader agent-body-name)
+  ((alive?  :initform t   :reader agent-body-alive?)
+   (name    :initform nil :reader agent-body-name)
    (holding :initform nil :reader agent-body-holding))
   (:documentation "An agent body is an object; some bodies have a hand that can hold 1 thing."))
 
@@ -14,44 +14,35 @@
 ;;; Each agent also has a slot for the agent program, and one for its score
 ;;; as determined by the performance measure.
 (defclass agent ()
-  ((program :initform #'nothing :accessor agent-program)	; fn: percept -> action
-   (body    :initform (make-instance 'agent-body) :reader agent-body)
-   (score   :initform 0   :accessor agent-score)
-   (percept :initform nil :accessor agent-percept)
-   (action  :initform nil :accessor agent-action)
-   (name    :initform nil :accessor agent-name))
+  ((body    :initform (make-instance 'agent-body) :reader   agent-body)
+   (score   :initform 0                           :accessor agent-score)
+   (percept :initform nil                         :accessor agent-percept)
+   (action  :initform nil                         :accessor agent-action)
+   (name    :initform nil                         :accessor agent-name))
 
   (:documentation "Agents take actions (based on percepts and the agent program) and receive
   a score (based on the performance measure).  An agent has a body which can
   take action, and a program to choose the actions, based on percepts."))
 
+(defclass ask-user-agent (agent)
+  ()
+  (:documentation "An agent that asks the user to type in an action."))
 
 ;;;; Definition of basic AGENT functions
 
-(defclass ask-user-agent (agent)
-  ((program :initform 'ask-user))
-  (:documentation "An agent that asks the user to type in an action."))
+(defgeneric program (an-agent percept)
+  (:documentation "Default agent program")
+  (:method (an-agent percept) nil))
 
-
-(defun ask-user (percept)
+(defmethod program ((an-agent agent) percept)
   "Ask the user what action to take."
   (format t "~&Percept is ~A; action? " percept)
   (read))
 
-(defmethod print-structure ((agent agent) stream)
+(defmethod print-object ((agent agent) stream)
   "Agents are printed by showing their name (or body) and score."
   (format stream "[~A = ~D]" (or (agent-name agent) (agent-body agent))
-	  (agent-score agent)))
-
-(defun initialize-agent-names (env)
-  "Name the agents 1, 2, ... if they don't yet have a name."
-  (dolist (agnt (environment-agents env))
-    (when (null (agent-name agnt))
-      (let ((i (+ 1 (position agnt (environment-agents env))))
-	    (body (agent-body agnt)))
-	(setf (agent-name agnt) i)
-	(when (and body (null (object-name body)))
-	  (setf (object-name body) i))))))
+          (agent-score agent)))
 
 ;; Design Decision Notes
 

@@ -1,4 +1,4 @@
-;;; File: grid-env.lisp -*- Mode: Lisp; Syntax: Common-Lisp; -*-
+;;; File: grid-env.lisp -*- Mode: Lisp -*-
 
 (in-package :aima/agents/environments)
 (use-package 'aima/utilities)
@@ -37,16 +37,17 @@
    (heading      :initform (@ 1 0)))	   ; Direction object is facing as unit vector
   (:documentation "An object is anything that occupies space.  Some objects are 'alive'."))
 
-(defclass obstacle ((object (name :initform "#"))))
+(defclass obstacle (object)
+  ((name :initform "#")))
 
-(defclass wall (obstacle))
+(defclass wall (obstacle) nil)
 
 ;;;; Generic Functions
 
 (defmethod update-fn ((env grid-environment))
   "Execute the actions and do bookkeeping on the bump sensor."
-  (for each agent in (environment-agents env) do
-       (setf (object-bump (agent-body agent)) nil)) ; dissipate bumps
+  (for-each agent in (environment-agents env) do
+    (setf (object-bump (agent-body agent)) nil)) ; dissipate bumps
   (execute-agent-actions env))
 
 (defmethod legal-actions ((env grid-environment))
@@ -59,7 +60,7 @@
   (unless (environment-initialized env)
     ;; Build the grid and place objects where they belong
     (setf (grid-environment-grid env)
-	  (make-array (grid-environment-size env) :initial-element '()))
+          (make-array (grid-environment-size env) :initial-element '()))
     (parse-specs env (grid-environment-aspec env))
     (parse-specs env (grid-environment-bspec env))
     (parse-specs env (grid-environment-cspec env))
@@ -68,21 +69,21 @@
 (defmethod termination? ((env grid-environment))
   "By default, we stop when there are no live agents."
   (every #'(lambda (agent) (not (object-alive? (agent-body agent))))
-	 (environment-agents env)))
+         (environment-agents env)))
 
 (defmethod display-environment-snapshot ((env grid-environment))
   "Show what is in each location in the environment."
   (print-grid (grid-environment-grid env) :width 4
-	      :stream (environment-stream env)
-	      :key #'(lambda (objects)
-		       (format nil "~{~A~}" objects))))
+                                          :stream (environment-stream env)
+                                          :key #'(lambda (objects)
+                                                   (format nil "~{~A~}" objects))))
 
 (defmethod print-structure ((object object) stream)
   "Show an object's name, and if it is alive, the direction it faces."
   (let ((name (or (object-name object) (type-of object))))
     (if (object-alive? object)
-	(format stream "~A~A" name (heading->string (object-heading object)))
-      (format stream "~A" name))))
+        (format stream "~A~A" name (heading->string (object-heading object)))
+        (format stream "~A" name))))
 
 ;;;; Actions
 
@@ -95,11 +96,11 @@
   "The agent changes its heading by turning right or left."
   (declare-ignore env)
   (let* ((headings '#((1 0) (0 1) (-1 0) (0 -1)))
-	 (now (position (agent-body-heading agent-body) headings
-			:test #'equal))
-	 (delta (case direction (right -1) (left +1) (t 0))))
+         (now (position (agent-body-heading agent-body) headings
+                        :test #'equal))
+         (delta (case direction (right -1) (left +1) (t 0))))
     (setf (object-heading agent-body)
-	  (elt headings (mod (+ now delta) 4)))))
+          (elt headings (mod (+ now delta) 4)))))
 
 (defmethod forward ((env grid-environment) agent-body)
   "Move the object to the location that is one step directly ahead of it."
@@ -113,8 +114,8 @@
   (declare-ignore args) ;; They are used in other environments
   (let ((object (find-object-if #'grabable? (object-loc agent-body) env)))
     (when (and object
-	       (not (agent-body-holding agent-body))
-	       (place-in-container object agent-body env))
+               (not (agent-body-holding agent-body))
+               (place-in-container object agent-body env))
       (setf (agent-body-holding agent-body) object))))
 
 (defun grabable? (object)
@@ -159,40 +160,40 @@
 
 (defun parse-specs (env specs)
   "Place objects, defined by specs, in the environment."
-  (for each spec in specs do
-       (parse-spec env spec)))
+  (for-each spec in specs do
+    (parse-spec env spec)))
 
 (defun parse-spec (env spec)
   (case (op spec)
-   (AT (parse-where env (arg1 spec) (rest (args spec))))
-   (*  (for i = 1 to (parse-n (arg1 spec)) do
-	 (parse-specs env (rest (args spec)))))
-   (t  (parse-what env nil spec))))
+    (AT (parse-where env (arg1 spec) (rest (args spec))))
+    (*  (for i = 1 to (parse-n (arg1 spec)) do
+          (parse-specs env (rest (args spec)))))
+    (t  (parse-what env nil spec))))
 
 (defun parse-where (env where whats)
   (cond
-   ((eq where 'EDGE)    (let ((x-size (xy-x (grid-environment-size env)))
-			      (y-size (xy-y (grid-environment-size env))))
-			  (for i = 0 to (- x-size 1) do
-			       (parse-whats env (@ i 0) whats)
-			       (parse-whats env (@ i (- y-size 1)) whats))
-			  (for i = 1 to (- y-size 2) do
-			       (parse-whats env (@ 0 i) whats)
-			       (parse-whats env (@ (- x-size 1) i) whats))))
-   ((eq where 'ALL)     (dotimes (x (xy-x (grid-environment-size env)))
-			  (dotimes (y (xy-y (grid-environment-size env)))
-			    (when (free-loc? (@ x y) env)
-			      (parse-whats env (@ x y) whats)))))
-   ((eq where 'FREE?)   (parse-whats env (random-loc env :if 'free-loc?) whats))
-   ((eq where 'START)   (parse-whats env (grid-environment-start env) whats))
-   ((xy-p where)        (parse-whats env where whats))
-   ((eq (op where) 'AND)(for each w in (args where) do
-			     (parse-where env w whats)))
-   (t (warn "Unrecognized object spec ignored: ~A" `(at ,where ,@whats)))))
+    ((eq where 'EDGE)    (let ((x-size (xy-x (grid-environment-size env)))
+                               (y-size (xy-y (grid-environment-size env))))
+                           (for i = 0 to (- x-size 1) do
+                             (parse-whats env (@ i 0) whats)
+                             (parse-whats env (@ i (- y-size 1)) whats))
+                           (for i = 1 to (- y-size 2) do
+                             (parse-whats env (@ 0 i) whats)
+                             (parse-whats env (@ (- x-size 1) i) whats))))
+    ((eq where 'ALL)     (dotimes (x (xy-x (grid-environment-size env)))
+                           (dotimes (y (xy-y (grid-environment-size env)))
+                             (when (free-loc? (@ x y) env)
+                               (parse-whats env (@ x y) whats)))))
+    ((eq where 'FREE?)   (parse-whats env (random-loc env :if 'free-loc?) whats))
+    ((eq where 'START)   (parse-whats env (grid-environment-start env) whats))
+    ((xy-p where)        (parse-whats env where whats))
+    ((eq (op where) 'AND)(for-each w in (args where) do
+                           (parse-where env w whats)))
+    (t (warn "Unrecognized object spec ignored: ~A" `(at ,where ,@whats)))))
 
 (defun parse-whats (env loc what-list)
-  (for each what in what-list do
-       (parse-what env loc what)))
+  (for-each what in what-list do
+    (parse-what env loc what)))
 
 (defun parse-what (env loc what)
   "Place the objects specified by WHAT-LIST at the given location
@@ -201,21 +202,21 @@
   and (* n what...) means place n copies of each what."
   (case (op what)
     (* (for i = 1 to (parse-n (arg1 what)) do
-	 (parse-whats env loc (rest (args what)))))
-    (P (for each w in (rest (args what)) do
-	    (when (< (random 1.0) (arg1 what))
-	      (parse-what env loc w))))
+         (parse-whats env loc (rest (args what)))))
+    (P (for-each w in (rest (args what)) do
+         (when (< (random 1.0) (arg1 what))
+           (parse-what env loc w))))
     (t (let* ((object (if (object-p what) what
-			(apply #'make (op what) (args what))))
-	      (location (or loc (if (agent-p object)
-				    (grid-environment-start env)
-				  (random-loc env :if #'free-loc?)))))
-	 (place-object object location env t)))))
+                          (apply #'make (op what) (args what))))
+              (location (or loc (if (agent-p object)
+                                    (grid-environment-start env)
+                                    (random-loc env :if #'free-loc?)))))
+         (place-object object location env t)))))
 
 (defun parse-n (n)
   (if (eq (op n) '+-)
       (round (+ (arg1 n) (random (float (arg2 n)))
-		(- (random (float (arg2 n))))))
+                (- (random (float (arg2 n))))))
       n))
 
 (defun make (type &rest args)
@@ -227,8 +228,8 @@
   The loc must satisfy the :IF predicate.  If it can't find such a location
   after a number of TRIES, it signals an error."
   (or (for i = 1 to tries do
-	   (let ((loc (mapcar #'random (grid-environment-size env))))
-	     (when (funcall if loc env) (RETURN loc))))
+        (let ((loc (mapcar #'random (grid-environment-size env))))
+          (when (funcall if loc env) (RETURN loc))))
       (error "Can't find a location.")))
 
 (defun free-loc? (loc env)

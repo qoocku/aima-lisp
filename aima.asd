@@ -8,4 +8,5 @@
   :version "0.0.1"
   :licence "Public Domain"
   :serial t
+  :depends-on (#:alexandria)
   :components ((:file "package")))

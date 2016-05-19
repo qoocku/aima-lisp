@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*-
+;;; -*- Mode: Lisp -*-
 
 (in-package :aima/agents/environments)
 
@@ -45,15 +45,15 @@
   (dotimes (i (environment-max-steps env))
     (incf (environment-step env))
     ;; Deliver percept and get action from each agent
-    (for each agent in (environment-agents env) do
-	 (setf (agent-percept agent) (get-percept env agent))
-	 (setf (agent-action agent)
-	       (funcall (agent-program agent) (agent-percept agent))))
+    (for-each agent in (environment-agents env) do
+      (setf (agent-percept agent) (get-percept env agent))
+      (setf (agent-action agent)
+            (funcall (agent-program agent) (agent-percept agent))))
     ;; Execute the actions and otherwise update the world
     (update-fn env)
     ;; Update the agent scores, then optionally display the current state
-    (for each agent in (environment-agents env) do
-	 (setf (agent-score agent) (performance-measure env agent)))
+    (for-each agent in (environment-agents env) do
+      (setf (agent-score agent) (performance-measure env agent)))
     (display-environment env)
     (when (termination? env) (RETURN)))
   env)
@@ -93,7 +93,7 @@
 (defmethod performance-measure ((env environment) agent)
   "Return a number saying how well this agent is doing."
   ;; The default is to subtract one point for each time step.
-  (declare-ignore agent)
+  (declare (ignore agent))
   (- (environment-step env)))
 
 ;;; Here are the ones that can usually be inherited:
@@ -117,11 +117,11 @@
     (when stream
       (format stream "~&At Time step ~D:~%" (environment-step env))
       (when (> (environment-step env) 0)
-	(for each agent in (environment-agents env) do
-	     (format stream
-		     "~&Agent ~A perceives ~A~%~6Tand does ~A~%"
-		     agent (agent-percept agent)
-		     (agent-action agent))))
+        (for-each agent in (environment-agents env) do
+          (format stream
+                  "~&Agent ~A perceives ~A~%~6Tand does ~A~%"
+                  agent (agent-percept agent)
+                  (agent-action agent))))
       (display-environment-snapshot env))))
 
 (defmethod display-environment-snapshot ((env environment))
@@ -145,12 +145,12 @@
   ;; same environment-fn.
   (let ((total 0) (score 0))
     (for i = 1 to n do
-	 (let* ((env (let ((*random-state* env-gen-random-state))
-		       (funcall environment-fn
-				:stream nil
-				:aspec (list agent-type)))))
-	   (run-environment env)
-	   (incf total (agent-score (first (environment-agents env))))))
+      (let* ((env (let ((*random-state* env-gen-random-state))
+                    (funcall environment-fn
+                             :stream nil
+                             :aspec (list agent-type)))))
+        (run-environment env)
+        (incf total (agent-score (first (environment-agents env))))))
     (setf score (float (/ total n)))
     (format t "~&~10,2F average for ~A" score agent-type)
     score))
@@ -158,10 +158,10 @@
 (defun execute-agent-actions (env)
   "Each agent (if the agent is alive and has specified a legal action)
   takes the action."
-  (for each agent in (environment-agents env) do
-       (let ((act (agent-action agent)))
-	 (when (member (op act) (legal-actions env))
-	   (apply (op act) env (agent-body agent) (args act))))))
+  (for-each agent in (environment-agents env) do
+    (let ((act (agent-action agent)))
+      (when (member (op act) (legal-actions env))
+        (apply (op act) env (agent-body agent) (args act))))))
 
 (defmethod print-structure ((env environment) stream)
   (format stream "#<~A; Step: ~D, Agents:~{ ~A~}>"

@@ -1,10 +1,11 @@
 (in-package :asdf)
 
-(defsystem "aima/agents"
+(defsystem "aima-agents"
   :description "AIMA Agents Subsystem. Code from Part I: Agents and Environments"
   :version "0.0.1"
   :author "Damian T. Dobroczy\\'nski <qoocku@gmail.com>"
   :licence "Public Domain"
+  :depends-on (#:aima #:aima-utilities)
   ;; --------------------- packages files -----------------------
   :serial t
   :components ((:module "algorithms"
@@ -26,7 +27,9 @@
                              (:file "grid-env")
                              (:file "vacuum")
                              (:file "wumpus")))
-               (:file "agents/test-agents"))
 
-  :defsystem-depends-on ("aima"
-                         "utilities"))
+               (:module "agents+environments"
+                :pathname "agents"
+                :components ((:file "agents+environments")))
+
+               (:file "agents/test-agents")))

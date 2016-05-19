@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- File: utilities/index.lisp
+;;; -*- Mode: Lisp; -*- File: utilities/index.lisp
 
 ;;;; Make an Index to all the Lisp Functions, Variables, and Types
 
