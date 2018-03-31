@@ -1,13 +1,12 @@
 ;;;  -*- Mode: Lisp; Syntax: Common-Lisp -*- File: aima.lisp
 
-(uiop:define-package :aima
-    (:recycle :aima)
-  (:use :common-lisp)
+(uiop:define-package :aima (:use :common-lisp)
+  (:recycle :aima)
   (:export #:*aima-version*
-	   #:*aima-binary-type*
-	   #:*aima-system-names*
-	   #:def-aima-system
-	   #:add-aima-system))
+           #:*aima-binary-type*
+           #:*aima-system-names*
+           #:def-aima-system
+           #:add-aima-system))
 
 (in-package :aima)
 
