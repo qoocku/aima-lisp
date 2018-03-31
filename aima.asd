@@ -1,6 +1,5 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
+;;; -*- Mode: Lisp; Author: Peter Norvig -*-
 
-(ql:quickload "asdf")
 (in-package :asdf)
 
 (defsystem "aima"
@@ -9,4 +8,5 @@
   :version "0.0.1"
   :licence "Public Domain"
   :serial t
+  :depends-on (#:alexandria)
   :components ((:file "package")))

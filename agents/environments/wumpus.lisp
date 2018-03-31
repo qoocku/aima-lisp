@@ -4,27 +4,30 @@
 
 ;;;; The Wumpus World Environment
 
-(defstructure (wumpus-world (:include grid-environment
-    (size (@ 6 6))
-    (aspec '(aimless-wumpus-agent))
-    (bspec '((at edge wall) (* 1 gold) (* 1 wumpus) (at all (p 0.2 pit))))))
-  "A dangerous world with pits and wumpuses, and some gold.")
+(defclass wumpus-world (grid-environment)
+  ((size  :initform (@ 6 6))
+   (aspec :initform '(aimless-wumpus-agent))
+   (bspec :initform '((at edge wall)
+                      (* 1 gold)
+                      (* 1 wumpus)
+                      (at all (p 0.2 pit)))))
+  (:documentation "A dangerous world with pits and wumpuses, and some gold."))
 
-(defstructure (gold   (:include object (name "$") (size 0.1))))
-(defstructure (pit    (:include object (name "O"))))
-(defstructure (arrow  (:include object (name "!") (size 0.01))))
-(defstructure (wumpus (:include object (name "W") (alive? t) (size 0.7))))
+(defclass gold   (object) ((name :initform "$") (size :initform 0.1)))
+(defclass pit    (object) ((name :initform "O")))
+(defclass arrow  (object) ((name :initform "!") (size :initform 0.01)))
+(defclass wumpus (object) ((name :initform "W") (alive? :initform t) (size :initform 0.7)))
 
 ;;;; Defining the generic functions
 
 (defmethod update-fn ((env wumpus-world))
   ;; See if anyone died
-  (for each agent in (environment-agents env) do
-       (when (find-object-if #'deadly? (object-loc (agent-body agent)) env)
-	 (kill (agent-body agent))))
+  (for-each agent in (environment-agents env) do
+    (when (find-object-if #'deadly? (object-loc (agent-body agent)) env)
+      (kill (agent-body agent))))
   ;; Sounds dissipate
-  (for each object in (grid-environment-objects env) do
-       (setf (object-sound object) nil))
+  (for-each object in (grid-environment-objects env) do
+    (setf (object-sound object) nil))
   ;; Do the normal thing
   (call-next-method))
 

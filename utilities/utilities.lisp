@@ -1,41 +1,8 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- File: utilities.lisp
+;;; -*- Mode: Lisp; -*- File: utilities.lisp
 
 ;;;; Basic utility functions and macros, used throughout the code.
 
-(uiop:define-package :aima/utilities
-  (:use :common-lisp :aima)
-  (:export #:while
-	   #:for
-	   #:deletef
-	   #:define-if-undefined
-	   #:length>1
-	   #:length=1
-	   #:random-element
-	   #:mappend
-	   #:starts-with
-	   #:last1
-	   #:left-rotate
-	   #:right-rotate
-	   #:transpose
-	   #:reuse-cons
-	   #:xy-p
-	   #:@
-	   #:xy-add
-	   #:xy-equal
-	   #:xy-distance
-	   #:xy-between
-	   #:rotate
-	   #:inside
-	   #:infinity
-	   #:minus-infinity
-	   #:average
-	   #:square
-	   #:sum
-	   #:between
-	   #:random-integer
-	   #:nothing))
-
-(in-package :aima/utilities)
+(in-package #:aima/utilities)
 (use-package :aima)
 
 ;;; The utilities are divided into control flow macros, list
@@ -65,21 +32,24 @@
   (typecase var
     (symbol `(dolist (,var ,list) ,@body))
     (cons (let ((list-var (gensym)))
-	    `(dolist (,list-var ,list)
-	       (destructuring-bind ,var ,list-var ,@body))))
+            `(dolist (,list-var ,list)
+               (destructuring-bind ,var ,list-var ,@body))))
     (t (error "~a is an illegal variable in (for each ~s in ~a ...)"
-	      var var list))))
+              var var list))))
 
 (defmacro for (var = start to end do &body body)
   "Execute body with var bound to succesive integers."
   (cond ((eq var 'each) ; Allow (for each ...) instead of (for-each ...)
-	 `(for-each ,= ,start ,to ,end ,do ,@body))
-	(t (assert (eq = '=)) (assert (eq to 'to)) (assert (eq do 'do))
-	   (let ((end-var (gensym "END")))
-	     `(do ((,var ,start (+ 1 ,var)) (,end-var ,end))
-		  ((> ,var ,end-var) nil)
-		,@body)))))
+         `(for-each ,= ,start ,to ,end ,do ,@body))
+        (t (assert (string-equal (symbol-name =) "="))
+           (assert (string-equal (symbol-name to) "to"))
+           (assert (string-equal (symbol-name do) "do"))
+           (let ((end-var (gensym "END")))
+             `(do ((,var ,start (+ 1 ,var)) (,end-var ,end))
+                  ((> ,var ,end-var) nil)
+                ,@body)))))
 
+#-alexandria
 (defmacro deletef (item sequence &rest keys &environment env)
   "Destructively delete item from sequence, which must be SETF-able."
   (multiple-value-bind (temps vals stores store-form access-form)
@@ -87,9 +57,9 @@
     (assert (= (length stores) 1))
     (let ((item-var (gensym "ITEM")))
       `(let* ((,item-var ,item)
-	      ,@(mapcar #'list temps vals)
-	      (,(first stores) (delete ,item-var ,access-form ,@keys)))
-	 ,store-form))))
+              ,@(mapcar #'list temps vals)
+              (,(first stores) (delete ,item-var ,access-form ,@keys)))
+         ,store-form))))
 
 (defmacro define-if-undefined (&rest definitions)
   "Use this to conditionally define functions, variables, or macros that
@@ -97,18 +67,18 @@
   CLtL2 compatibility for older Lisps."
   `(progn
      ,@(mapcar #'(lambda (def)
-		   (let ((name (second def)))
-		     `(when (not (or (boundp ',name) (fboundp ',name)
-				     ;; 5oct05 charley cox
-				     ;; this was just a call to special-form-p
-				     ;; which has been replaced by
-				     ;; special-operator-p in ANS.
-				     (if (fboundp 'special-operator-p)
-					 (funcall 'special-operator-p ',name)
-					 (funcall 'special-form-p ',name))
-				     (macro-function ',name)))
-			,def)))
-	       definitions)))
+                   (let ((name (second def)))
+                     `(when (not (or (boundp ',name) (fboundp ',name)
+                                     ;; 5oct05 charley cox
+                                     ;; this was just a call to special-form-p
+                                     ;; which has been replaced by
+                                     ;; special-operator-p in ANS.
+                                     (if (fboundp 'special-operator-p)
+                                         (funcall 'special-operator-p ',name)
+                                         (funcall 'special-form-p ',name))
+                                     (macro-function ',name)))
+                        ,def)))
+               definitions)))
 
 ;;;; List Utilities
 
@@ -124,10 +94,12 @@
   "Return some element of the list, chosen at random."
   (nth (random (length list)) list))
 
+#-alexandria
 (defun mappend (fn &rest lists)
   "Apply fn to respective elements of list(s), and append results."
   (reduce #'append (apply #'mapcar fn lists) :from-end t))
 
+#-alexandria
 (defun starts-with (list element)
   "Is this a list that starts with the given element?"
   (and (consp list) (eq (first list) element)))
@@ -171,8 +143,8 @@ Expressions are used in Logic, and as actions for agents."
 (defun prefix->infix (exp)
   "Convert a fully parenthesized prefix expression into infix notation."
   (cond ((atom exp) exp)
-	((length=1 (args exp)) exp)
-	(t (insert-between (op exp) (mapcar #'prefix->infix (args exp))))))
+        ((length=1 (args exp)) exp)
+        (t (insert-between (op exp) (mapcar #'prefix->infix (args exp))))))
 
 (defun insert-between (item list)
   "Insert item between every element of list."
@@ -199,7 +171,7 @@ Expressions are used in Logic, and as actions for agents."
 (defun xy-distance (p q)
   "The distance between two points."
   (sqrt (+ (square (- (xy-x p) (xy-x q)))
-	   (square (- (xy-y p) (xy-y q))))))
+           (square (- (xy-y p) (xy-y q))))))
 
 (defun x+y-distance (p q)
   "The 'city block distance' between two points."
@@ -213,7 +185,7 @@ Expressions are used in Logic, and as actions for agents."
 
 (defun rotate (o a b c d)
   (let ((x (xy-x o))
-	(y (xy-y o)))
+        (y (xy-y o)))
     (@ (+ (* a x) (* b y)) (+ (* c x) (* d y)))))
 
 (defun inside (l xmax ymax)
@@ -280,21 +252,21 @@ Expressions are used in Logic, and as actions for agents."
     result))
 
 (defun sample-without-replacement (n population &optional
-						(m (length population)))
+                                                (m (length population)))
   ;; Assumes that m = (length population)
   (cond ((<= n 0) nil)
-	((>= n m) population)
-	((>= (/ n m) (random 1.0))
-	 (cons (first population) (sample-without-replacement
-				   (- n 1) (rest population) (- m 1))))
-	(t (sample-without-replacement n (rest population) (- m 1)))))
+        ((>= n m) population)
+        ((>= (/ n m) (random 1.0))
+         (cons (first population) (sample-without-replacement
+                                   (- n 1) (rest population) (- m 1))))
+        (t (sample-without-replacement n (rest population) (- m 1)))))
 
 (defun fuzz (quantity &optional (proportion .1) (round-off .01))
   "Add and also subtract a random fuzz-factor to a quantity."
   (round-off (+ quantity
-		(* quantity (- (random (float proportion))
-			       (random (float proportion)))))
-	     round-off))
+                (* quantity (- (random (float proportion))
+                               (random (float proportion)))))
+             round-off))
 
 (defun round-off (number precision)
   "Round off the number to specified precision. E.g. (round-off 1.23 .1) = 1.2"
@@ -321,10 +293,10 @@ Expressions are used in Logic, and as actions for agents."
   (declare (ignore args))
   nil)
 
-#-(or CCL MCL Lispworks) ;; MCL, Lispworks already define this function
+#-(or ECL CCL MCL Lispworks) ;; MCL, Lispworks already define this function
 (defun true (&rest args) "Always return true." (declare (ignore args)) t)
 
-#-(or CCL MCL Lispworks) ;; MCL, Lispworks already define this function
+#-(or ECL CCL MCL Lispworks) ;; MCL, Lispworks already define this function
 (defun false (&rest args) "Always return false." (declare (ignore args)) nil)
 
 (defun required (&optional (msg "A required argument is missing.") &rest args)
@@ -337,8 +309,8 @@ Expressions are used in Logic, and as actions for agents."
 (defun stringify (exp)
   "Coerce argument to a string."
   (cond ((stringp exp) exp)
-	((symbolp exp) (symbol-name exp))
-	(t (format nil "~A" exp))))
+        ((symbolp exp) (symbol-name exp))
+        (t (format nil "~A" exp))))
 
 (defun concat-symbol (&rest args)
   "Concatenate the args into one string, and turn that into a symbol."
@@ -347,30 +319,30 @@ Expressions are used in Logic, and as actions for agents."
 (defun print-grid (array &key (stream t) (key #'identity) (width 3))
   "Print the contents of a 2-D array, numbering the edges."
   (let ((max-x (- (array-dimension array 0) 1))
-	(max-y (- (array-dimension array 1) 1)))
+        (max-y (- (array-dimension array 1) 1)))
     ;; Print the header
     (format stream "~&") (print-repeated " " width stream)
     (for x = 0 to max-x do
-	 (format stream "|") (print-dashes width stream))
+      (format stream "|") (print-dashes width stream))
     (format stream "|~%")
     ;; Print each row
     (for y1 = 0 to max-y do
-	 (let ((y (- max-y y1)))
-	   (print-centered y width stream)
-	   ;; Print each location
-	   (for x = 0 to max-x do
-		(format stream "|")
-		(print-centered (funcall key (aref array x y)) width stream))
-	   (format stream "|~%")
-	   ;; Print a dashed line
-	   (print-repeated " " width stream)
-	   (for x = 0 to max-x do
-		(format stream "|") (print-dashes width stream)))
-	 (format stream "|~%"))
+      (let ((y (- max-y y1)))
+        (print-centered y width stream)
+        ;; Print each location
+        (for x = 0 to max-x do
+          (format stream "|")
+          (print-centered (funcall key (aref array x y)) width stream))
+        (format stream "|~%")
+        ;; Print a dashed line
+        (print-repeated " " width stream)
+        (for x = 0 to max-x do
+          (format stream "|") (print-dashes width stream)))
+      (format stream "|~%"))
     ;; Print the X-coordinates along the bottom
     (print-repeated " " width stream)
     (for x = 0 to max-x do
-	 (format stream " ") (print-centered x width stream))
+      (format stream " ") (print-centered x width stream))
     array))
 
 (defun print-centered (string width &optional (stream t))
@@ -402,9 +374,9 @@ Expressions are used in Logic, and as actions for agents."
 (defun copy-subarray (a b indices dim)
   (if dim
       (dotimes (i (first dim))
-	(copy-subarray a b (append indices (list i)) (rest dim)))
+        (copy-subarray a b (append indices (list i)) (rest dim)))
       (setf (apply #'aref (cons b indices))
-	    (apply #'aref (cons a indices)))))
+            (apply #'aref (cons a indices)))))
 
 (defun array->vector (array)
   "Convert a multi-dimensional array to a vector with the same elements."
@@ -413,14 +385,14 @@ Expressions are used in Logic, and as actions for agents."
 
 (defun plot-alist (alist file)
   (with-open-file (stream file :direction :output :if-does-not-exist :create
-			       :if-exists :supersede)
+                               :if-exists :supersede)
     (dolist (xy alist)
       (format stream "~&~A ~A~%" (car xy) (cdr xy)))))
 
 (defun copy-hash-table (H1 &optional (copy-fn #'identity))
   (let ((H2 (make-hash-table :test #'equal)))
     (maphash #'(lambda (key val) (setf (gethash key H2) (funcall copy-fn val)))
-	     H1)
+             H1)
     H2))
 
 (defun hash-table->list (table)
@@ -432,42 +404,43 @@ Expressions are used in Logic, and as actions for agents."
   (maphash #'(lambda (key val) (format stream "~&~A:~10T ~A" key val)) h)
   h)
 
+#-alexandria
 (defun compose (f g)
   "Return a function h such that (h x) = (f (g x))."
   #'(lambda (x) (funcall f (funcall g x))))
 
 (defun the-biggest (fn l)
   (let ((biggest (first l))
-	(best-val (funcall fn (first l))))
+        (best-val (funcall fn (first l))))
     (dolist (x (rest l))
       (let ((val (funcall fn x)))
-	(when (> val best-val)
-	  (setq best-val val)
-	  (setq biggest x))))
+        (when (> val best-val)
+          (setq best-val val)
+          (setq biggest x))))
     biggest))
 
 (defun the-biggest-random-tie (fn l)
   (random-element
    (let ((biggest (list (first l)))
-	 (best-val (funcall fn (first l))))
+         (best-val (funcall fn (first l))))
      (dolist (x (rest l))
        (let ((val (funcall fn x)))
-	 (cond ((> val best-val)
-		(setq best-val val)
-		(setq biggest (list x)))
-	       ((= val best-val)
-		(push x biggest)))))
+         (cond ((> val best-val)
+                (setq best-val val)
+                (setq biggest (list x)))
+               ((= val best-val)
+                (push x biggest)))))
      biggest)))
 
 (defun the-biggest-that (fn p l)
   (let ((biggest (first l))
-	(best-val (funcall fn (first l))))
+        (best-val (funcall fn (first l))))
     (dolist (x (rest l))
       (when (funcall p x)
-	(let ((val (funcall fn x)))
-	  (when (> val best-val)
-	    (setq best-val val)
-	    (setq biggest x)))))
+        (let ((val (funcall fn x)))
+          (when (> val best-val)
+            (setq best-val val)
+            (setq biggest x)))))
     biggest))
 
 (defun the-smallest (fn l)
@@ -503,7 +476,7 @@ Expressions are used in Logic, and as actions for agents."
 (defun add-test (name examples)
   "The functional interface for deftest: adds test examples to a system."
   (let ((system (or (get-aima-system name)
-		    (add-aima-system :name name :examples examples))))
+                    (add-aima-system :name name :examples examples))))
     (setf (aima-system-examples system) examples))
   name)
 
@@ -514,21 +487,22 @@ Expressions are used in Logic, and as actions for agents."
   If there are no test examples in the named system, put the system has
   other systems as parts, run the tests for all those and sum the result."
   (let ((*print-pretty* t)
-	(*standard-output* (if print? *standard-output*
-			       (make-broadcast-stream)))
-	(system (aima-load-if-unloaded name)))
+        (*standard-output* (if print? *standard-output*
+                               (make-broadcast-stream)))
+        (system (aima-load-if-unloaded name)))
+    (use-package :cl-user)
     (cond ((null system) (warn "No such system as ~A." name))
-	  ((and (null (aima-system-examples system))
-		(every #'symbolp (aima-system-parts system)))
-	   (sum  (aima-system-parts system)
-		 #'(lambda (part) (test part print?))))
+          ((and (null (aima-system-examples system))
+                (every #'symbolp (aima-system-parts system)))
+           (sum  (aima-system-parts system)
+                 #'(lambda (part) (test part print?))))
           (t (when print? (format t "Testing System ~A~%" name))
-	     (let ((errors (count-if-not #'(lambda (example)
-					     (test-example example print?))
-					 (aima-system-examples system))))
-	       (format *debug-io* "~%~2D error~P on system ~A~%"
-		       errors errors name)
-	       errors)))))
+             (let ((errors (count-if-not #'(lambda (example)
+                                             (test-example example print?))
+                                         (aima-system-examples system))))
+               (format *debug-io* "~%~2D error~P on system ~A~%"
+                       errors errors name)
+               errors)))))
 
 (defun test-example (example &optional (print? t))
   "Does the EXP part of this example pass the TEST?"
@@ -538,22 +512,22 @@ Expressions are used in Logic, and as actions for agents."
           (format t "~&;;; ~A~%" example))
         t)
       (let* ((exp (first example))
-	     (* nil)
-	     (test (cond ((null (second example)) t)
-			 ((constantp (second example))
-			  `(equal * ,(second example)))
-			 (t (second example))))
-	     test-result)
-	(when (eq print? t)
-	  (format t "~&> ~S~%" exp))
-	(setf * (eval exp))
-	(when (eq print? t)
-	  (format t "~&~S~%" *))
-	(setf test-result (eval test))
-	(when (null test-result)
-	  (case print?
-	    ((FAIL) (format t "~&;;; FAILURE on ~S; expected ~S, got:~%;;; ~S~%"
-			    exp test *))
-	    ((T) (format t "~&;;; FAILURE: expected ~S" test))
-	    (otherwise)))
-	test-result)))
+             (* nil)
+             (test (cond ((null (second example)) t)
+                         ((constantp (second example))
+                          `(equal * ,(second example)))
+                         (t (second example))))
+             test-result)
+        (when (eq print? t)
+          (format t "~&> ~S~%" exp))
+        (setf * (eval exp))
+        (when (eq print? t)
+          (format t "~&~S~%" *))
+        (setf test-result (eval test))
+        (when (null test-result)
+          (case print?
+            ((FAIL) (format t "~&;;; FAILURE on ~S; expected ~S, got:~%;;; ~S~%"
+                            exp test *))
+            ((T) (format t "~&;;; FAILURE: expected ~S" test))
+            (otherwise)))
+        test-result)))
