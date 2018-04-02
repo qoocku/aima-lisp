@@ -1,10 +1,16 @@
 ;;; -*- Mode: Lisp -*-
 
-(uiop:define-package #:aima/agents/environments
-    (:recycle #:aima #:aima/agents/environments)
+(defpackage #:aima/agents/environments
   (:use #:common-lisp
         #:aima
         #:aima/utilities
+        #:aima/agents/algorithms
         #:aima/agents/agents)
+
   (:export #:environment-agents
-           #:object-name))
+           #:run-environment
+           #:vacuum-world
+           #:wumpus-world
+           #:object-name
+           #:grid-environment-size
+           #:grid-environment-grid))

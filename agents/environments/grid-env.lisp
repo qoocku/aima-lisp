@@ -1,5 +1,5 @@
 ;;; File: grid-env.lisp -*- Mode: Lisp -*-
-
+3
 (in-package :aima/agents/environments)
 (use-package 'aima/utilities)
 
@@ -13,13 +13,13 @@
 ;;; Elevator worlds.
 
 (defclass grid-environment (environment)
-  ((size    :initform (@ 10 10))			  ; Size of the 2-D array
-   (grid    :initform nil)				  ; Will be a 2-D array of squares
-   (objects :initform '())			  ; List of objects currently in this env.
-   (start   :initform (@ 1 1))			  ; Where agents begin
-   (aspec   :initform '(ask-user-agent))  ; Specify default list of Agents
-   (bspec   :initform '((at edge wall))) ; Specify Basic objects, common to all envs.
-   (cspec   :initform '()))			   ; Specify objects that Change for each env.
+  ((size    :initform (@ 10 10)	    :accessor grid-environment-size) ; Size of the 2-D array
+   (grid    :initform nil           :accessor grid-environment-grid) ; Will be a 2-D array of squares
+   (objects :initform '()           :accessor grid-environment-objects) ; List of objects currently in this env.
+   (start   :initform (@ 1 1)       :accessor grid-environment-start) ; Where agents begin
+   (aspec   :initform '(ask-user-agent) :accessor grid-environment-aspec)  ; Specify default list of Agents
+   (bspec   :initform '((at edge wall)) :accessor grid-environment-bspec) ; Specify Basic objects, common to all envs.
+   (cspec   :initform '()               :accessor grid-environment-cspec))			   ; Specify objects that Change for each env.
   )
 
 (defclass object ()
@@ -160,8 +160,9 @@
 
 (defun parse-specs (env specs)
   "Place objects, defined by specs, in the environment."
-  (for-each spec in specs do
-    (parse-spec env spec)))
+  #+nil(for-each spec in specs do
+         (parse-spec env spec))
+  (dolist (spec specs) (parse-spec env spec)))
 
 (defun parse-spec (env spec)
   (case (op spec)

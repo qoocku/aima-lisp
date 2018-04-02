@@ -2,11 +2,11 @@
 
 ;;;; Test cases for the basic utilities
 
-(in-package :aima)
-(use-package :aima/utilities)
+(in-package :aima/utilities)
 
-(aima/utilities:deftest utilities
+(deftest utilities
   "Test all the utility functions."
+  ((in-package :aima/utilities))
   ;;"Test the CLOS implementation"
   ((defstruct shape))
   ((defstruct (triangle (:include shape))
@@ -34,8 +34,10 @@
   ((starts-with '(hi there) 'hi) *)
   ((last1 '(a b c)) (eq * 'c))
   ((transpose '((a b c) (d e f))) (equal * '((a d) (b e) (c f))))
-  ((setq l '(a b c)))
-  ((deletef 'a l) (equal l '(b c)))
+  ((progn
+     (cl:setq l '(a b c))
+     (deletef 'a l))
+   (equal l '(b c)))
 
   ;;"Now for 2-dimensional points."
   ((xy-add (@ 1 2) (@ 10 20)) (equal * (@ 11 22)))

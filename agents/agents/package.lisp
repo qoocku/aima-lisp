@@ -1,7 +1,5 @@
-(uiop:define-package #:aima/agents/agents
-    (:recycle #:aima/utilities)
+(defpackage #:aima/agents/agents
   (:use #:common-lisp
-        #:aima
         #:aima/utilities)
   (:export #:agent
            #:agent-score

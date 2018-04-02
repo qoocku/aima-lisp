@@ -4,8 +4,8 @@
 
 (defclass agent-body (object)
   ((alive?  :initform t   :reader agent-body-alive?)
-   (name    :initform nil :reader agent-body-name)
-   (holding :initform nil :reader agent-body-holding))
+   (name    :initform nil :accessor agent-body-name)
+   (holding :initform nil :accessor agent-body-holding))
   (:documentation "An agent body is an object; some bodies have a hand that can hold 1 thing."))
 
 ;;; An agent is something that perceives and acts.  As such, each agent has a
@@ -14,7 +14,7 @@
 ;;; Each agent also has a slot for the agent program, and one for its score
 ;;; as determined by the performance measure.
 (defclass agent ()
-  ((body    :initform (make-instance 'agent-body) :reader   agent-body)
+  ((body    :initform (make-instance 'agent-body) :accessor agent-body)
    (score   :initform 0                           :accessor agent-score)
    (percept :initform nil                         :accessor agent-percept)
    (action  :initform nil                         :accessor agent-action)
