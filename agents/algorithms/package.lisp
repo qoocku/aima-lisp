@@ -1,6 +1,5 @@
 ;;; -*- mode: lisp -*-
-(uiop:define-package #:aima/agents/algorithms
-    (:recycle #:aima/agents/algorithms)
+(defpackage #:aima/agents/algorithms
   (:use :common-lisp)
   (:export #:grid-contents
            #:move-object-to

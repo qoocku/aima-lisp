@@ -29,12 +29,11 @@
    (step        :initform 0     :accessor environment-step)       ;; The number of time steps simulated so far
    (max-steps   :initform 1000
                 :initarg :max-steps
-                :reader environment-max-steps)    ;; Stop the simulation after this number
-   (stream      :initform t
-                :initarg :stream
-                :reader environment-stream)       ;; Stream to display output on
-   (initialized :initform nil   :reader environment-initialized)  ;; Have we run initialize on this environment yet?
-   (state       :initform nil   :reader environment-state)) ;; Current state of the environment; other subtypes
+                :accessor environment-max-steps)    ;; Stop the simulation after this number
+   (stream      :initform t     :accessor environment-stream)       ;; Stream to display output on
+   (initialized :initform nil   :accessor environment-initialized)  ;; Have we run initialize on this environment yet?
+   (state       :initform nil   :accessor environment-state)) ;; Current state of the environment; other subtypes
+  >>>>>>> d7f76ecb744f594b45027b749a27955d2f997e45
   ;; add new slots to hold various state information
   (:documentation "The world in which agents exist."))
 

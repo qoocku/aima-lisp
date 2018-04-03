@@ -1,7 +1,6 @@
 ;;; File: grid-env.lisp -*- Mode: Lisp -*-
-
+3
 (in-package :aima/agents/environments)
-(use-package 'aima/utilities)
 
 ;;;; Environments with a two-dimensional grid layout occupied by objects
 
@@ -13,32 +12,32 @@
 ;;; Elevator worlds.
 
 (defclass grid-environment (environment)
-  ((size    :initform (@ 10 10))			  ; Size of the 2-D array
-   (grid    :initform nil)				  ; Will be a 2-D array of squares
-   (objects :initform '())			  ; List of objects currently in this env.
-   (start   :initform (@ 1 1))			  ; Where agents begin
-   (aspec   :initform '(ask-user-agent))  ; Specify default list of Agents
-   (bspec   :initform '((at edge wall))) ; Specify Basic objects, common to all envs.
-   (cspec   :initform '()))			   ; Specify objects that Change for each env.
+  ((size    :initform (@ 10 10)	    :accessor grid-environment-size) ; Size of the 2-D array
+   (grid    :initform nil           :accessor grid-environment-grid) ; Will be a 2-D array of squares
+   (objects :initform '()           :accessor grid-environment-objects) ; List of objects currently in this env.
+   (start   :initform (@ 1 1)       :accessor grid-environment-start) ; Where agents begin
+   (aspec   :initform '(ask-user-agent) :accessor grid-environment-aspec)  ; Specify default list of Agents
+   (bspec   :initform '((at edge wall)) :accessor grid-environment-bspec) ; Specify Basic objects, common to all envs.
+   (cspec   :initform '()               :accessor grid-environment-cspec))			   ; Specify objects that Change for each env.
   )
 
 (defclass object ()
   ((name     :initform "?" :accessor object-name) ; Used to print the object on the map
-   (alive?   :initform nil)			   ; Is the object alive?
-   (loc      :initform (@ 1 1))		   ; The square that the object is in
-   (bump     :initform nil)			   ; Has the object bumped into something?
-   (size     :initform 0.5)			   ; Size of object as proportion of loc
-   (color    :initform 'black)		   ; Some objects have a color
-   (shape    :initform 'rectangle)	   ; Some objects have a shape
-   (sound    :initform nil)			   ; Some objects create a sound
-   (contents :initform '())		   ; Some objects contain others
-   (max-contents :initform 0.4)	   ; How much (total size) can fit inside?
-   (container    :initform nil)		   ; Some objects are contained by another
-   (heading      :initform (@ 1 0)))	   ; Direction object is facing as unit vector
+   (alive?   :initform nil :accessor object-alive?)			   ; Is the object alive?
+   (loc      :initform (@ 1 1) :accessor object-loc)		   ; The square that the object is in
+   (bump     :initform nil :accessor object-bump)			   ; Has the object bumped into something?
+   (size     :initform 0.5 :accessor object-size)			   ; Size of object as proportion of loc
+   (color    :initform 'black :accessor object-color)		   ; Some objects have a color
+   (shape    :initform 'rectangle :accessor object-shape)	   ; Some objects have a shape
+   (sound    :initform nil :accessor object-sound)			   ; Some objects create a sound
+   (contents :initform '() :accessor object-contents)		   ; Some objects contain others
+   (max-contents :initform 0.4 :acc6essor object-max-contents)	   ; How much (total size) can fit inside?
+   (container    :initform nil :accessor object-container)		   ; Some objects are contained by another
+   (heading      :initform (@ 1 0) :accessor object-heading))	   ; Direction object is facing as unit vector
   (:documentation "An object is anything that occupies space.  Some objects are 'alive'."))
 
 (defclass obstacle (object)
-  ((name :initform "#")))
+  ((name :initform "#" :accessor obstacle-name)))
 
 (defclass wall (obstacle) nil)
 
@@ -188,7 +187,7 @@
     ((eq where 'START)   (parse-whats env (grid-environment-start env) whats))
     ((xy-p where)        (parse-whats env where whats))
     ((eq (op where) 'AND)(for-each w in (args where) do
-                           (parse-where env w whats)))
+                         (parse-where env w whats)))
     (t (warn "Unrecognized object spec ignored: ~A" `(at ,where ,@whats)))))
 
 (defun parse-whats (env loc what-list)

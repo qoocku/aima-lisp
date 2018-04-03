@@ -1,6 +1,9 @@
+(ql:quickload "aima") ;;; becosue of custom system class defined there
+
 (in-package :asdf)
 
 (defsystem "aima-agents"
+  :class asdf::aima-system
   :description "AIMA Agents Subsystem. Code from Part I: Agents and Environments"
   :version "0.0.1"
   :author "Damian T. Dobroczy\\'nski <qoocku@gmail.com>"

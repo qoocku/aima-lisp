@@ -2,8 +2,7 @@
 
 ;;;; Basic utility functions and macros, used throughout the code.
 
-(in-package #:aima/utilities)
-(use-package :aima)
+(in-package :aima/utilities)
 
 ;;; The utilities are divided into control flow macros, list
 ;;; utilities, functions for 2-dimensional points, numeric utilities,
@@ -49,7 +48,6 @@
                   ((> ,var ,end-var) nil)
                 ,@body)))))
 
-#-alexandria
 (defmacro deletef (item sequence &rest keys &environment env)
   "Destructively delete item from sequence, which must be SETF-able."
   (multiple-value-bind (temps vals stores store-form access-form)
@@ -94,12 +92,10 @@
   "Return some element of the list, chosen at random."
   (nth (random (length list)) list))
 
-#-alexandria
 (defun mappend (fn &rest lists)
   "Apply fn to respective elements of list(s), and append results."
   (reduce #'append (apply #'mapcar fn lists) :from-end t))
 
-#-alexandria
 (defun starts-with (list element)
   "Is this a list that starts with the given element?"
   (and (consp list) (eq (first list) element)))
@@ -404,7 +400,6 @@ Expressions are used in Logic, and as actions for agents."
   (maphash #'(lambda (key val) (format stream "~&~A:~10T ~A" key val)) h)
   h)
 
-#-alexandria
 (defun compose (f g)
   "Return a function h such that (h x) = (f (g x))."
   #'(lambda (x) (funcall f (funcall g x))))
@@ -475,9 +470,9 @@ Expressions are used in Logic, and as actions for agents."
 
 (defun add-test (name examples)
   "The functional interface for deftest: adds test examples to a system."
-  (let ((system (or (get-aima-system name)
-                    (add-aima-system :name name :examples examples))))
-    (setf (aima-system-examples system) examples))
+  (let ((system (or (aima:get-aima-system name)
+                   (aima:add-aima-system :name name :examples examples))))
+    (setf (asdf::aima-system-examples system) examples))
   name)
 
 (defun test (&optional (name 'all) (print? 't))
@@ -489,17 +484,17 @@ Expressions are used in Logic, and as actions for agents."
   (let ((*print-pretty* t)
         (*standard-output* (if print? *standard-output*
                                (make-broadcast-stream)))
-        (system (aima-load-if-unloaded name)))
-    (use-package :cl-user)
+        (system (aima:aima-load-if-unloaded name)))
+    ;;(use-package :cl-user)
     (cond ((null system) (warn "No such system as ~A." name))
-          ((and (null (aima-system-examples system))
-                (every #'symbolp (aima-system-parts system)))
-           (sum  (aima-system-parts system)
+          ((and (null (asdf::aima-system-examples system))
+              (every #'symbolp (aima:aima-system-parts system)))
+           (sum  (aima:aima-system-parts system)
                  #'(lambda (part) (test part print?))))
           (t (when print? (format t "Testing System ~A~%" name))
              (let ((errors (count-if-not #'(lambda (example)
                                              (test-example example print?))
-                                         (aima-system-examples system))))
+                                         (asdf::aima-system-examples system))))
                (format *debug-io* "~%~2D error~P on system ~A~%"
                        errors errors name)
                errors)))))

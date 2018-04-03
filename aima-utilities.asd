@@ -1,12 +1,15 @@
 ;;; -*- mode: lisp -*-
+(ql:quickload "aima")
+
 (in-package :asdf)
 
 (defsystem "aima-utilities"
+  :class aima-system
   :description "AIMA Utilities Subsystem.  Basic functions that are loaded every time, and used by many other systems."
   :version "0.0.1"
   :author "Peter Norvig. (ASDF compliance - Damian T. Dobroczy\\'nski <qoocku@gmail.com>)"
   :licence "Public Domain"
-  :depends-on (#:aima #:alexandria)
+  :depends-on (#:aima)
   ;; --------------------- packages files -----------------------
   :serial t
   :components ((:module "utilities"
