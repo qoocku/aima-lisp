@@ -1,4 +1,4 @@
-;;; File: wumpus.lisp -*- Mode: Lisp; Syntax: Common-Lisp; -*-
+;;; File: wumpus.lisp -*- Mode: Lisp -*-
 
 (in-package :aima/agents/environments)
 

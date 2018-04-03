@@ -7,4 +7,10 @@
         #:aima/utilities
         #:aima/agents/agents)
   (:export #:environment-agents
-           #:object-name))
+           #:environment-size
+           #:object-name
+           #:run-environment
+           #:basic-env
+           #:vacuum-world
+           #:wumpus-world
+           #:grid-world))

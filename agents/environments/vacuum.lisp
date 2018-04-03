@@ -9,9 +9,9 @@
    (size :initform 0.01)))
 
 (defclass vacuum-world (grid-environment)
-  ((size  :initform (@ 8 8))
-   (aspec :initform '(random-vacuum-agent))
-   (cspec :initform '((at all (P 0.25 dirt)))))
+  ((size  :initform (@ 8 8)                 :initarg :size)
+   (aspec :initform '(random-vacuum-agent)  :initarg :aspec)
+   (cspec :initform '((at all (P 0.25 dirt) :initarg :cspec))))
   (:documentation "A grid with some dirt in it, and by default a reactive vacuum agent."))
 
 ;;;; Defining the generic functions
@@ -22,7 +22,7 @@
   (- (* 100 (count-if #'dirt-p (object-contents (agent-body agent))))
      (environment-step env)
      (if (equal (object-loc (agent-body agent))
-                (grid-environment-start env))
+                (environment-start env))
          0
          1000)))
 
@@ -30,8 +30,8 @@
   "Percept is a three-element sequence: bump, dirt and home."
   (let ((loc (object-loc (agent-body agent))))
     (list (if (object-bump (agent-body agent)) 'bump)
-	  (if (find-object-if #'dirt-p loc env) 'dirt)
-	  (if (equal loc (grid-environment-start env)) 'home))))
+          (if (find-object-if #'dirt-p loc env) 'dirt)
+          (if (equal loc (environment-start env)) 'home))))
 
 (defmethod legal-actions ((env vacuum-world))
   '(suck forward turn shut-off))

@@ -27,8 +27,12 @@
 (defclass environment ()
   ((agents      :initform '()   :accessor environment-agents)     ;; A list of the agents in the environment
    (step        :initform 0     :accessor environment-step)       ;; The number of time steps simulated so far
-   (max-steps   :initform 1000  :reader environment-max-steps)    ;; Stop the simulation after this number
-   (stream      :initform t     :reader environment-stream)       ;; Stream to display output on
+   (max-steps   :initform 1000
+                :initarg :max-steps
+                :reader environment-max-steps)    ;; Stop the simulation after this number
+   (stream      :initform t
+                :initarg :stream
+                :reader environment-stream)       ;; Stream to display output on
    (initialized :initform nil   :reader environment-initialized)  ;; Have we run initialize on this environment yet?
    (state       :initform nil   :reader environment-state)) ;; Current state of the environment; other subtypes
   ;; add new slots to hold various state information
