@@ -17,12 +17,10 @@
 ;;; This could all be done with LOOP, but some users don't have
 ;;; the LOOP from the 2nd edition of 'Common Lisp: the Language'.
 
-(#+excl without-package-locks
- #-excl progn
- (defmacro while (test do &body body)
-   "Execute body while the test is true."
-   (assert (eq do 'do))
-   `(do () ((not ,test) nil) ,@body)))
+(defmacro while (test do &body body)
+  "Execute body while the test is true."
+  (assert (eq do 'do))
+  `(do () ((not ,test) nil) ,@body))
 
 (defmacro for-each (var in list do &body body)
   "Execute body for each element of list.  VAR can be a list or tree
@@ -472,7 +470,7 @@ Expressions are used in Logic, and as actions for agents."
 (defun add-test (name examples)
   "The functional interface for deftest: adds test examples to a system."
   (let ((system (or (aima:get-aima-system name)
-                   (aima:add-aima-system :name name :examples examples))))
+                    (aima:add-aima-system :name name :examples examples))))
     (setf (asdf::aima-system-examples system) examples))
   name)
 
@@ -489,7 +487,7 @@ Expressions are used in Logic, and as actions for agents."
     ;;(use-package :cl-user)
     (cond ((null system) (warn "No such system as ~A." name))
           ((and (null (asdf::aima-system-examples system))
-              (every #'symbolp (aima:aima-system-parts system)))
+                (every #'symbolp (aima:aima-system-parts system)))
            (sum  (aima:aima-system-parts system)
                  #'(lambda (part) (test part print?))))
           (t (when print? (format t "Testing System ~A~%" name))
