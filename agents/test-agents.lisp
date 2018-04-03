@@ -10,12 +10,12 @@
 
 (aima/utilities:deftest agents
   ""
-  #+nil ((progn
-           (in-package :aima/agents/agents)
-           (import 'aima/agents/algorithms:place-in-container)
-           (import 'aima/agents/environments:run-environment)
-           (import 'aima/agents/environments:vacuum-world)
-           (import 'aima/agents/environments:wumpus-world)))
+  ((progn
+     (in-package :aima/agents/agents)
+     (import 'aima/agents/algorithms:place-in-container)
+     (import 'aima/agents/environments:run-environment)
+     (import 'aima/agents/environments:vacuum-world)
+     (import 'aima/agents/environments:wumpus-world)))
 
   ;; Test agents in the vacuum and wumpus worlds.
   ;; Here is how to run an environment, in this case the vacuum world.
