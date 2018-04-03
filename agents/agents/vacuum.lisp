@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp -*- Author: Peter Norvig
 
-(in-package #:aima/agents/agents)
+(in-package #:aima/agents)
 
 ;;;; Some simple agents for the vacuum world
 

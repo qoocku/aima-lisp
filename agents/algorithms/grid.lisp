@@ -2,7 +2,7 @@
 
 ;;;; Algorithms for manipulating objects in a grid
 
-(in-package :aima/agents/algorithms)
+(in-package :aima/agents)
 
 (defun grid-contents (env loc)
   "Return a list of objects in this location, optionally including
@@ -18,11 +18,11 @@
   attempting to move into a location with an obstacle fails (returns nil)
   and the object receives a bump."
   (cond ((find-object-if #'obstacle-p loc env)
-	 (setf (object-bump object) 'bump)
-	 nil)
-	(t (remove-object object env)
-	   (place-object object loc env)
-	   loc)))
+         (setf (object-bump object) 'bump)
+         nil)
+        (t (remove-object object env)
+           (place-object object loc env)
+           loc)))
 
 (defun place-object (object loc env &optional (initial? t))
   "Put the object in its initial position or a new position in environment."
@@ -41,8 +41,8 @@
   "Put the object inside the container, if there is room."
   ;; First, check to see if there is space
   (when (< (+ (object-size object)
-	      (sum (object-contents container) #'object-size))
-	   (object-max-contents object))
+              (sum (object-contents container) #'object-size))
+           (object-max-contents object))
     ;; If there is, remove it from where it was.
     (remove-object object env)
     ;; Now place it in its new container

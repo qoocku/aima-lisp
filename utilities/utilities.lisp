@@ -27,7 +27,8 @@
 (defmacro for-each (var in list do &body body)
   "Execute body for each element of list.  VAR can be a list or tree
   of variables, in which case the elements are destructured."
-  (assert (eq in 'in)) (assert (eq do 'do))
+  (assert (string-equal (symbol-name in) "in"))
+  (assert (string-equal (symbol-name do) "do"))
   (typecase var
     (symbol `(dolist (,var ,list) ,@body))
     (cons (let ((list-var (gensym)))
@@ -38,7 +39,7 @@
 
 (defmacro for (var = start to end do &body body)
   "Execute body with var bound to succesive integers."
-  (cond ((eq var 'each) ; Allow (for each ...) instead of (for-each ...)
+  (cond ((string-equal (symbol-name var) "each") ; Allow (for each ...) instead of (for-each ...)
          `(for-each ,= ,start ,to ,end ,do ,@body))
         (t (assert (string-equal (symbol-name =) "="))
            (assert (string-equal (symbol-name to) "to"))

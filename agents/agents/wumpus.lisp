@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; -*- Author: Peter Norvig
 
-(in-package #:aima/agents/agents)
+(in-package #:aima/agents)
 
 (defclass wumpus-agent-body (agent-body)
   ((contents :initform (list (make-instance 'arrow))))

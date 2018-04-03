@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp -*-
 
-(in-package :aima/agents/environments)
+(in-package #:aima/agents)
 
 ;;;; The basic environment simulator code
 
@@ -14,7 +14,7 @@
 ;;; expression builds an environment and runs an agent in it, displaying the
 ;;; results:
 ;;;
-;;; (run-environment (make-vacuum-world :aspec '(random-vacuum-agent)))
+;;; (run-environment (make-instance 'vacuum-world :aspec '(random-vacuum-agent)))
 ;;;
 ;;; We also define AGENT-TRIALS to compare the performance of several
 ;;; different agents in a series of random environments, all drawn from an
@@ -30,10 +30,9 @@
    (max-steps   :initform 1000
                 :initarg :max-steps
                 :accessor environment-max-steps)    ;; Stop the simulation after this number
-   (stream      :initform t     :accessor environment-stream)       ;; Stream to display output on
+   (stream      :initform t     :accessor environment-stream :initarg :stream)       ;; Stream to display output on
    (initialized :initform nil   :accessor environment-initialized)  ;; Have we run initialize on this environment yet?
    (state       :initform nil   :accessor environment-state)) ;; Current state of the environment; other subtypes
-  >>>>>>> d7f76ecb744f594b45027b749a27955d2f997e45
   ;; add new slots to hold various state information
   (:documentation "The world in which agents exist."))
 
@@ -48,15 +47,15 @@
   (dotimes (i (environment-max-steps env))
     (incf (environment-step env))
     ;; Deliver percept and get action from each agent
-    (for-each agent in (environment-agents env) do
-      (setf (agent-percept agent) (get-percept env agent))
+    (for each agent in (environment-agents env) do
+        (setf (agent-percept agent) (get-percept env agent))
       (setf (agent-action agent)
             (funcall (agent-program agent) (agent-percept agent))))
     ;; Execute the actions and otherwise update the world
     (update-fn env)
     ;; Update the agent scores, then optionally display the current state
-    (for-each agent in (environment-agents env) do
-      (setf (agent-score agent) (performance-measure env agent)))
+    (for each agent in (environment-agents env) do
+        (setf (agent-score agent) (performance-measure env agent)))
     (display-environment env)
     (when (termination? env) (RETURN)))
   env)
@@ -68,9 +67,9 @@
   Agent-types is a list of names of functions that each create an agent."
   (let ((env-gen-random-state (make-random-state t)))
     (mapcar #'(lambda (agent-type)
-		(agent-trial environment-fn agent-type
-			     (make-random-state env-gen-random-state) n))
-	    agent-types)))
+                (agent-trial environment-fn agent-type
+                             (make-random-state env-gen-random-state) n))
+            agent-types)))
 
 ;;;; Generic Functions that must be defined for each environment
 
@@ -120,11 +119,11 @@
     (when stream
       (format stream "~&At Time step ~D:~%" (environment-step env))
       (when (> (environment-step env) 0)
-        (for-each agent in (environment-agents env) do
-          (format stream
-                  "~&Agent ~A perceives ~A~%~6Tand does ~A~%"
-                  agent (agent-percept agent)
-                  (agent-action agent))))
+        (for each agent in (environment-agents env) do
+            (format stream
+                    "~&Agent ~A perceives ~A~%~6Tand does ~A~%"
+                    agent (agent-percept agent)
+                    (agent-action agent))))
       (display-environment-snapshot env))))
 
 (defmethod display-environment-snapshot ((env environment))
@@ -161,12 +160,12 @@
 (defun execute-agent-actions (env)
   "Each agent (if the agent is alive and has specified a legal action)
   takes the action."
-  (for-each agent in (environment-agents env) do
-    (let ((act (agent-action agent)))
-      (when (member (op act) (legal-actions env))
-        (apply (op act) env (agent-body agent) (args act))))))
+  (for each agent in (environment-agents env) do
+      (let ((act (agent-action agent)))
+        (when (member (op act) (legal-actions env))
+          (apply (op act) env (agent-body agent) (args act))))))
 
 (defmethod print-structure ((env environment) stream)
   (format stream "#<~A; Step: ~D, Agents:~{ ~A~}>"
-	  (type-of env) (environment-step env)
-	  (environment-agents env)))
+          (type-of env) (environment-step env)
+          (environment-agents env)))

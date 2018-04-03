@@ -4,7 +4,12 @@
 (defpackage #:aima/utilities
   (:use #:common-lisp)
 
-  (:export #:while
+  (:export #:concat-symbol
+           #:make-exp
+           #:args
+           #:arg1
+           #:arg2
+           #:while
            #:for
            #:deletef
            #:define-if-undefined
@@ -12,12 +17,14 @@
            #:length=1
            #:random-element
            #:mappend
-           :starts-with
+           #:starts-with
            #:last1
            #:left-rotate
            #:right-rotate
            #:transpose
            #:reuse-cons
+           #:xy-x
+           #:xy-y
            #:xy-p
            #:@
            #:xy-add
@@ -36,5 +43,11 @@
            #:nothing
            #:deftest
            #:test
+           #:op
+           #:print-grid
            #:hyperspec-link
-           #:hyperspec-url))
+           #:hyperspec-url
+           #:declare-ignore
+           #:true
+           #:false
+           #:required))

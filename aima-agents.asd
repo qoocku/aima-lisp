@@ -11,25 +11,24 @@
   :depends-on (#:aima #:aima-utilities)
   ;; --------------------- packages files -----------------------
   :serial t
-  :components ((:module "algorithms"
-                :pathname "agents/algorithms"
-                :components ((:file "package")
-                             (:file "grid")))
+  :components ((:file "agents/package")
 
                (:module "agents"
                 :pathname "agents/agents"
-                :components ((:file "package")
-                             (:file "agent")
+                :components ((:file "agent")
                              (:file "vacuum")
                              (:file "wumpus")))
 
                (:module "environments"
                 :pathname "agents/environments"
-                :components ((:file "package")
-                             (:file "basic-env")
+                :components ((:file "basic-env")
                              (:file "grid-env")
                              (:file "vacuum")
                              (:file "wumpus")))
+
+               (:module "algorithms"
+                :pathname "agents/algorithms"
+                :components ((:file "grid")))
 
                (:module "agents+environments"
                 :pathname "agents"

@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp -*-
 
-(in-package :aima/agents/environments)
+(in-package #:aima/agents)
 
 ;;;; The Vacuum World: cleaning up dirt in a grid
 
@@ -8,10 +8,13 @@
   ((name :initform "*")
    (size :initform 0.01)))
 
+(defun dirt-p (object)
+  (typep object (find-class 'dirt)))
+
 (defclass vacuum-world (grid-environment)
   ((size  :initform (@ 8 8)                 :initarg :size)
    (aspec :initform '(random-vacuum-agent)  :initarg :aspec)
-   (cspec :initform '((at all (P 0.25 dirt) :initarg :cspec))))
+   (cspec :initform '((at all (P 0.25 dirt))) :initarg :cspec))
   (:documentation "A grid with some dirt in it, and by default a reactive vacuum agent."))
 
 ;;;; Defining the generic functions
@@ -22,7 +25,7 @@
   (- (* 100 (count-if #'dirt-p (object-contents (agent-body agent))))
      (environment-step env)
      (if (equal (object-loc (agent-body agent))
-                (environment-start env))
+                (grid-environment-start env))
          0
          1000)))
 
@@ -31,7 +34,7 @@
   (let ((loc (object-loc (agent-body agent))))
     (list (if (object-bump (agent-body agent)) 'bump)
           (if (find-object-if #'dirt-p loc env) 'dirt)
-          (if (equal loc (environment-start env)) 'home))))
+          (if (equal loc (grid-environment-start env)) 'home))))
 
 (defmethod legal-actions ((env vacuum-world))
   '(suck forward turn shut-off))

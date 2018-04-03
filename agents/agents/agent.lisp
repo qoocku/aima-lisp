@@ -1,12 +1,16 @@
 ;;; -*- Mode: Lisp; -*- Author: Peter Norvig
 
-(in-package #:aima/agents/agents)
+(in-package #:aima/agents)
 
 (defclass agent-body (object)
   ((alive?  :initform t   :reader agent-body-alive?)
    (name    :initform nil :accessor agent-body-name)
+   (heading :initform nil :accessor agent-body-heading)
    (holding :initform nil :accessor agent-body-holding))
   (:documentation "An agent body is an object; some bodies have a hand that can hold 1 thing."))
+
+(defun agent-body-p (object)
+  (typep object (find-class 'agent-body)))
 
 ;;; An agent is something that perceives and acts.  As such, each agent has a
 ;;; slot to hold its current percept, and its current action.  The action
@@ -18,15 +22,22 @@
    (score   :initform 0                           :accessor agent-score)
    (percept :initform nil                         :accessor agent-percept)
    (action  :initform nil                         :accessor agent-action)
+   (program :initform #'nothing                   :accessor agent-program)
    (name    :initform nil                         :accessor agent-name))
 
   (:documentation "Agents take actions (based on percepts and the agent program) and receive
   a score (based on the performance measure).  An agent has a body which can
   take action, and a program to choose the actions, based on percepts."))
 
+(defun agent-p (object)
+  (typep object (find-class 'agent)))
+
 (defclass ask-user-agent (agent)
   ()
   (:documentation "An agent that asks the user to type in an action."))
+
+(defmethod :initialize-instance :after ((i ask-user-agent))
+  (setf (slot-value i 'program) 'ask-user))
 
 ;;;; Definition of basic AGENT functions
 

@@ -1,6 +1,6 @@
 ;;; File: grid-env.lisp -*- Mode: Lisp -*-
 3
-(in-package :aima/agents/environments)
+(in-package #:aima/agents)
 
 ;;;; Environments with a two-dimensional grid layout occupied by objects
 
@@ -31,13 +31,19 @@
    (shape    :initform 'rectangle :accessor object-shape)	   ; Some objects have a shape
    (sound    :initform nil :accessor object-sound)			   ; Some objects create a sound
    (contents :initform '() :accessor object-contents)		   ; Some objects contain others
-   (max-contents :initform 0.4 :acc6essor object-max-contents)	   ; How much (total size) can fit inside?
+   (max-contents :initform 0.4 :accessor object-max-contents)	   ; How much (total size) can fit inside?
    (container    :initform nil :accessor object-container)		   ; Some objects are contained by another
    (heading      :initform (@ 1 0) :accessor object-heading))	   ; Direction object is facing as unit vector
   (:documentation "An object is anything that occupies space.  Some objects are 'alive'."))
 
+(defun object-p (object)
+  (typep object 'object))
+
 (defclass obstacle (object)
-  ((name :initform "#" :accessor obstacle-name)))
+  ((name :initform "#")))
+
+(defun obstacle-p (object)
+  (typep object (find-class 'obstacle)))
 
 (defclass wall (obstacle) nil)
 
@@ -45,8 +51,8 @@
 
 (defmethod update-fn ((env grid-environment))
   "Execute the actions and do bookkeeping on the bump sensor."
-  (for-each agent in (environment-agents env) do
-    (setf (object-bump (agent-body agent)) nil)) ; dissipate bumps
+  (for each agent in (environment-agents env) do
+      (setf (object-bump (agent-body agent)) nil)) ; dissipate bumps
   (execute-agent-actions env))
 
 (defmethod legal-actions ((env grid-environment))
@@ -77,7 +83,7 @@
                                           :key #'(lambda (objects)
                                                    (format nil "~{~A~}" objects))))
 
-(defmethod print-structure ((object object) stream)
+(defmethod print-object ((object object) stream)
   "Show an object's name, and if it is alive, the direction it faces."
   (let ((name (or (object-name object) (type-of object))))
     (if (object-alive? object)
@@ -159,11 +165,11 @@
 
 (defun parse-specs (env specs)
   "Place objects, defined by specs, in the environment."
-  (for-each spec in specs do
-    (parse-spec env spec)))
+  (for each spec in specs do
+      (parse-spec env spec)))
 
 (defun parse-spec (env spec)
-  (case (op spec)
+  (case (aima/utilities:op spec)
     (AT (parse-where env (arg1 spec) (rest (args spec))))
     (*  (for i = 1 to (parse-n (arg1 spec)) do
           (parse-specs env (rest (args spec)))))
@@ -186,13 +192,13 @@
     ((eq where 'FREE?)   (parse-whats env (random-loc env :if 'free-loc?) whats))
     ((eq where 'START)   (parse-whats env (grid-environment-start env) whats))
     ((xy-p where)        (parse-whats env where whats))
-    ((eq (op where) 'AND)(for-each w in (args where) do
-                         (parse-where env w whats)))
+    ((eq (op where) 'AND)(for each w in (args where) do
+                             (parse-where env w whats)))
     (t (warn "Unrecognized object spec ignored: ~A" `(at ,where ,@whats)))))
 
 (defun parse-whats (env loc what-list)
-  (for-each what in what-list do
-    (parse-what env loc what)))
+  (for each what in what-list do
+      (parse-what env loc what)))
 
 (defun parse-what (env loc what)
   "Place the objects specified by WHAT-LIST at the given location
@@ -202,9 +208,9 @@
   (case (op what)
     (* (for i = 1 to (parse-n (arg1 what)) do
          (parse-whats env loc (rest (args what)))))
-    (P (for-each w in (rest (args what)) do
-         (when (< (random 1.0) (arg1 what))
-           (parse-what env loc w))))
+    (P (for each w in (rest (args what)) do
+           (when (< (random 1.0) (arg1 what))
+             (parse-what env loc w))))
     (t (let* ((object (if (object-p what) what
                           (apply #'make (op what) (args what))))
               (location (or loc (if (agent-p object)
@@ -220,7 +226,7 @@
 
 (defun make (type &rest args)
   "Make an instance of the specified type by calling make-TYPE."
-  (apply (concat-symbol 'make- type) args))
+  (apply #'make-instance (cons type args)))
 
 (defun random-loc (env &key (if #'true) (tries 100))
   "Return a random loc, somewhere in the environment.

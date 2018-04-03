@@ -1,9 +1,9 @@
 <HTML>
 <HEAD>
-<TITLE>Agents (Subsystem of AIMA Code)</TITLE> 
+<TITLE>Agents (Subsystem of AIMA Code)</TITLE>
 <!-- Changed by: Peter Norvig, 30-Oct-1996 -->
-</HEAD> 
-<BODY bgcolor="#ffffff"> 
+</HEAD>
+<BODY bgcolor="#ffffff">
 
 <H1>Agents (Subsystem of AIMA Code)</H1>
 
@@ -38,7 +38,7 @@ environments like the shopping world of Chapter 8.
 <I> expression builds an environment and runs an agent in it, displaying the</I>
 <I> results:</I>
 <P>
-<I> (run-environment (make-vacuum-world :aspec '(random-vacuum-agent)))</I>
+<I> (run-environment (make-instance 'vacuum-world :aspec '(random-vacuum-agent)))</I>
 <P>
 <I> We also define AGENT-TRIALS to compare the performance of several</I>
 <I> different agents in a series of random environments, all drawn from an</I>
@@ -303,7 +303,7 @@ environments like the shopping world of Chapter 8.
 <A NAME="performance-measure:vacuum-world"><P><A HREF="../agents/environments/vacuum.lisp"><B>performance-measure</B></A></A> <I>method</I> ((env
                                                                                                                                               vacuum-world)
                                                                                                                                              agent)
-  <blockquote>100 points for each piece of dirt vacuumed up, -1 point for each 
+  <blockquote>100 points for each piece of dirt vacuumed up, -1 point for each
   step taken, and -1000 points if the agent does not return home.</blockquote>
 <A NAME="get-percept:vacuum-world"><P><A HREF="../agents/environments/vacuum.lisp"><B>get-percept</B></A></A> <I>method</I> ((env
                                                                                                                               vacuum-world)
@@ -482,5 +482,5 @@ environments like the shopping world of Chapter 8.
 <td> <A HREF="../../prog.html">AI Programming</A>
 <td> <A HREF="../../instructors.html">Instructors Pages</A>
 </TABLE>
-</BODY> 
+</BODY>
 </HTML>
